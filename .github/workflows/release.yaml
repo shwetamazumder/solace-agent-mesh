@@ -22,7 +22,7 @@ jobs:
     with:
       ENVIRONMENT: pypi
       version: ${{ github.event.inputs.version }}
-      pypi-project: agent-mesh
+      pypi-project: solace-agent-mesh
     secrets:
       COMMIT_KEY: ${{ secrets.COMMIT_KEY }}
       PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}

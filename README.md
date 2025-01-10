@@ -1,7 +1,7 @@
-# Welcome to agent-mesh
+# Welcome to solace-agent-mesh
 
-[![PyPI - Version](https://img.shields.io/pypi/v/agent-mesh.svg)](https://pypi.org/project/agent-mesh)
-[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/agent-mesh.svg)](https://pypi.org/project/agent-mesh)
+[![PyPI - Version](https://img.shields.io/pypi/v/solace-agent-mesh.svg)](https://pypi.org/project/solace-agent-mesh)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/solace-agent-mesh.svg)](https://pypi.org/project/solace-agent-mesh)
 
 ---
 
@@ -13,7 +13,7 @@
 ## Installation
 
 ```console
-pip install agent-mesh
+pip install solace-agent-mesh
 ```
 
 ## Support
@@ -27,4 +27,4 @@ For more information try these resources:
 
 ## License
 
-`agent-mesh` is distributed under the terms of the [Apache-2.0](https://spdx.org/licenses/Apache-2.0.html) license.
+`solace-agent-mesh` is distributed under the terms of the [Apache-2.0](https://spdx.org/licenses/Apache-2.0.html) license.
