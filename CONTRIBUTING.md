@@ -1,4 +1,4 @@
-# How to contribute to this project
+# How to contribute
 
 We'd love for you to contribute and welcome your help. Here are some guidelines to follow:
 
@@ -9,9 +9,9 @@ We'd love for you to contribute and welcome your help. Here are some guidelines 
 
 ## <a name="issue"></a> Did you find a issue?
 
-- **Ensure the bug was not already reported** by searching on GitHub under [Issues](https://github.com/SolaceLabs/solace-agent-mesh/issues).
+* **Ensure the bug was not already reported** by searching on GitHub under *Issues*
 
-- If you're unable to find an open issue addressing the problem, [open a new one](https://github.com/SolaceLabs/solace-agent-mesh/issues/new). Be sure to include a **title and clear description**, as much relevant information as possible, and a **code sample** or an **executable test case** demonstrating the expected behavior that is not occurring.
+* If you're unable to find an open issue addressing the problem, open a new one
 
 ## <a name="submitting"></a> Did you write a patch that fixes a bug?
 
@@ -19,10 +19,8 @@ Open a new GitHub pull request with the patch following the steps outlined below
 
 Before you submit your pull request consider the following guidelines:
 
-- Search [GitHub](https://github.com/SolaceLabs/solace-agent-mesh/pulls) for an open or closed Pull Request
+* Search *Pull Requests* for an open or closed Pull Request
   that relates to your submission. You don't want to duplicate effort.
-- Make sure you add integration test for the fix you are submitting.
-- If your fix is adding a new configuration make sure it is documented in docs/ folder of this project.
 
 ### Submitting a Pull Request
 
@@ -30,11 +28,11 @@ Please follow these steps for all pull requests. These steps are derived from th
 
 #### Step 1: Fork
 
-Fork the project [on GitHub](https://github.com/SolaceLabs/solace-agent-mesh) and clone your fork
+Fork the current repository and clone your fork
 locally.
 
 ```sh
-git clone https://github.com/<my-github-repo>/solace-agent-mesh
+git clone https://github.com/solacecommunity/<github-repo>
 ```
 
 #### Step 2: Branch
@@ -68,7 +66,7 @@ $ git rebase upstream/master
 If you have not set the upstream, do so as follows:
 
 ```sh
-$ git remote add upstream https://github.com/SolaceLabs/solace-agent-mesh
+$ git remote add upstream https://github.com/solacecommunity/<github-repo>
 ```
 
 If you have already pushed your fork, then do not rebase. Instead merge any changes from master that are not already part of your branch.
@@ -83,20 +81,20 @@ git push origin my-fix-branch
 
 #### Step 6: Pull Request
 
-In GitHub, send a pull request to `solace-agent-mesh:main`.
+In GitHub, send a pull request to `<github-repo>:master`.
 
 When fixing an existing issue, use the [commit message keywords](https://help.github.com/articles/closing-issues-via-commit-messages/) to close the associated GitHub issue.
 
-- If we suggest changes then:
-  - Make the required updates.
-  - Commit these changes to your branch (ex: my-fix-branch)
+* If we suggest changes then:
+  * Make the required updates.
+  * Commit these changes to your branch (ex: my-fix-branch)
 
 That's it! Thank you for your contribution!
 
 ## <a name="features"></a> **Do you have an ideas for a new feature or a change to an existing one?**
 
-- Open a GitHub [enhancement request issue](https://github.com/SolaceLabs/solace-agent-mesh/issues/new) and describe the new functionality.
+* Open a GitHub issue and label it as an *enhancement* and describe the new functionality.
 
-## <a name="questions"></a> Do you have questions about the source code?
+##  <a name="questions"></a> Do you have questions about the source code?
 
-- Ask any question about the code or how to use Solace messaging in the [Solace community](http://dev.solace.com/community/).
+* Ask any question about the code or how to use Solace technologies in the [Solace community](https://solace.community).
