@@ -182,7 +182,7 @@ class TestFileService(unittest.TestCase):
         self.assertIn(cleaned_name, meta["url"])
 
     def test_auto_expiry(self):
-        file_service = FileService(file_manager_expiry_config)
+        file_service = FileService(file_manager_expiry_config, identifier="fs-expiry")
         file_name = "test_auto_expiry.txt"
         file_content = b"Hello, world!"
         session_id = "test_session_id"

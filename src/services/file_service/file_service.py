@@ -32,7 +32,8 @@ class FileServicePermissionError(Exception):
 class FileService(AutoExpiry, metaclass=AutoExpirySingletonMeta):
     file_manager: FileManagerBase
 
-    def __init__(self, config=None) -> None:
+    def __init__(self, config=None, identifier=None) -> None:
+        self.identifier = identifier
         self._expiry_thread = None
         config = config or get_service_config("file_service")
         self.service_type = config.get("type", DEFAULT_FILE_MANAGER)

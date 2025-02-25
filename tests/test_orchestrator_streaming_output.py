@@ -3,7 +3,16 @@
 import unittest
 
 from solace_ai_connector.test_utils.utils_for_test_files import run_component_test
+from src.services.file_service import FileService
 
+file_manager_config = {
+    "type": "memory",
+    "max_time_to_live": 86400,
+    "expiration_check_interval": 600,
+    "config": {"memory": {}},
+}
+
+FileService(file_manager_config)
 
 def strip_lines(text):
     return "\n".join([line.strip() for line in text.strip().split("\n")]).strip()
