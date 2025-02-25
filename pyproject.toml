@@ -55,7 +55,11 @@ dependencies = [
     "build~=1.2.2.post1",
     "duckduckgo_search~=6.3.7",
     "markitdown~=0.0.1a3",
-    "pyperclip~=1.9.0",
+    "pyperclip~=1.9.0"
+  ]
+
+[project.optional-dependencies]
+git-deps = [
     "solace-ai-connector @ git+https://github.com/SolaceDev/solace-ai-connector.git@main",
     "solace-ai-connector-slack @ git+https://github.com/SolaceLabs/solace-ai-connector-slack.git@main",
     "solace-ai-connector-rest @ git+https://github.com/SolaceLabs/solace-ai-connector-rest.git@main",
@@ -84,6 +88,7 @@ solace-agent-mesh = "solace_agent_mesh.cli.main:main"
 sam = "solace_agent_mesh.cli.main:main"
 
 [tool.hatch.build.targets.wheel]
+require-runtime-dependencies = true
 packages = ["solace_agent_mesh"]
 
 
