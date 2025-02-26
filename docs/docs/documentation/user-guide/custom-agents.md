@@ -8,13 +8,13 @@ sidebar_position: 40
 You can create custom agents for Solace Agent Mesh.
 
 :::info[Learn about agents]
-We recommend that you read about [Agents](../concepts/agents.md) before you read this section.
+Before you create a custom agent, we recommend learn about about agents. For more information, see [Agents](../concepts/agents.md).
 :::
 
 As an example, you will build an agent that can perform sentiment analysis and entity extraction on incoming requests.
 
 ## Setting Up the Environment
-First, you need to [install the Solace Agent Mesh SDK and CLI](../getting-started/installation.md), and then you'll want to [create a new project](../getting-started/quick-start.md) or [create a new plugin](../concepts/plugins/create-plugin.md).
+First, you need to [install the Solace Agent Mesh and Solace Agent Mesh (SAM) CLI](../getting-started/installation.md), and then you'll want to [create a new project](../getting-started/quick-start.md) or [create a new plugin](../concepts/plugins/create-plugin.md).
 
 After you have your project set up, you can create an agent called `message-analyzer` using the following command:
 

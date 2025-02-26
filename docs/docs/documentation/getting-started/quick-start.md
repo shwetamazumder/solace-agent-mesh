@@ -21,7 +21,7 @@ mkdir my-agent-mesh
 cd my-agent-mesh
 ```
 
-Run the `init` command and follow the prompts to create your project. **Ensure to enable REST API interface when prompted**.
+Run the `init` command and follow the prompts to create your project. Ensure to enable REST API interface when prompted.
 
 ```sh
 solace-agent-mesh init
@@ -40,7 +40,7 @@ If you're using a non-openai model but hosting it on a custom API that follows t
 
 For example: `openai/llama-3.3-7b`
 
-This is the case for all the model names, such as LLMs, Image Generators, Embedding Models, etc.
+This is the case for all the model names, such as LLMs, image generators, embedding models, etc.
 :::
 
 Your project configurations have been written to the `solace-agent-mesh.yaml` file. To learn more about this file and its configurations, see the [configurations](./configuration.md) page.
@@ -48,7 +48,7 @@ Your project configurations have been written to the `solace-agent-mesh.yaml` fi
 
 ## Building the Project
 
-The build command will generate all the respective [solace-ai-connector](../user-guide/solace-ai-connector.md) config files. Solace AI Connector is the underlying library that runs all the components and connects the Solace Agent Mesh to the Solace PubSub+ event broker.
+The build command generates all the respective [solace-ai-connector](../user-guide/solace-ai-connector.md) configuration files. Solace AI Event Connector is the underlying library that runs all the components and connects Solace Agent Mesh to a Solace PubSub+ event broker.
 
 To build the project, run the following command:
 
@@ -127,9 +127,9 @@ For example, here's a prompt to retrieve a file: `prompt="Give me a diagram of t
 
 ## Next Steps
 
-The Solace Agent Mesh requires two types of components, **agents** and **gateways**. The system comes with a set of built-in agents, and a REST API gateway (which you enabled during the init step).
+Solace Agent Mesh requires two types of components, **agents** and **gateways**. The system comes with a set of built-in agents and a REST API gateway (which you enabled during the `init` step).
 
-Next, learn more about [gateways](../concepts/gateways.md). Alternatively, you can skip ahead to learn about [adding a pre-built gateway interfaces](../concepts/gateways.md#gateway-from-interfaces) or [creating your own new gateways](../user-guide/custom-gateways.md).
+You can learn more about [gateways](../concepts/gateways.md). Alternatively, you learn about [adding a pre-built gateway interfaces](../concepts/gateways.md#gateway-from-interfaces) or [creating your own new gateways](../user-guide/custom-gateways.md).
 
 Also, you can learn more about [agents](../concepts/agents.md) or about [creating your own agents](../user-guide/custom-agents.md).
 

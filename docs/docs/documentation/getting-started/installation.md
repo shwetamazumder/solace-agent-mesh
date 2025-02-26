@@ -6,7 +6,7 @@ sidebar_position: 20
 # Installation
 
 [Solace Agent Mesh Module](https://pypi.org/project/solace-agent-mesh) comes with two components:
-1. **Solace Agent Mesh (SAM) CLI**: To create, build, run, and extend the Solace Agent Mesh.
+1. **Solace Agent Mesh (SAM) CLI**: To create, build, run, and extend Solace Agent Mesh.
 2. **Solace Agent Mesh framework**: To extend the capabilities of Solace Agent Mesh using Python code. We've provided a framework that you build upon to extend and customize the capabilities of Solace Agent Mesh.
 
 Installing the PyPi package will install both the SAM CLI and the framework that uses the Python SDK.

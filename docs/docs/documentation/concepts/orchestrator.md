@@ -5,7 +5,7 @@ sidebar_position: 40
 
 # Orchestrator
 
-The orchestrator is the central system in the Solace Agent Mesh framework that plays a crucial role in managing the overall workflow of requests. It acts as the central coordinator for processing complex, multi-step workflows while maintaining security, efficiency, and scalability.
+The orchestrator is the central system in Solace Agent Mesh that plays a crucial role in managing the overall workflow of requests. It acts as the central coordinator for processing complex, multi-step workflows while maintaining security, efficiency, and scalability.
 
 
 :::tip[In one sentence]

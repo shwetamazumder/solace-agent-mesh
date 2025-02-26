@@ -182,7 +182,7 @@ A typical format for the agent would be:
 
 ## Usage  
 
-The `FileService` class in the Solace Agent Mesh SDK provides methods to upload, download, and retrieve file metadata.  
+The `FileService` class in the Solace Agent Mesh framework provides methods to upload, download, and retrieve file metadata.  
 
 ### Importing the File Service  
 
