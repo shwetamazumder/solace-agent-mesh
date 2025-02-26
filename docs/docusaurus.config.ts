@@ -9,7 +9,7 @@ const config: Config = {
   title: "Solace Agent Mesh",
   favicon: "/img/logo.png",
   url: "https://solacelabs.github.io",
-  baseUrl: "solace-agent-mesh/",
+  baseUrl: "/solace-agent-mesh",
   organizationName: "SolaceLabs",
   projectName: "solace-agent-mesh", 
 
