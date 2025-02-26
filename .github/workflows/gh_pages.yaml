@@ -34,6 +34,9 @@ jobs:
           cd docs
           npm run build
 
+      - name: Add redirect rules
+        run: echo "/ docs/documentation/getting-started/introduction 200" > docs/build/_redirects
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
         with:
