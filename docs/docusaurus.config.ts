@@ -84,7 +84,7 @@ const config: Config = {
             },
             {
               label: "Official Plugins",
-              href: "https://github.com/SolaceDev/solace-agent-mesh-core-plugins/",
+              href: "https://github.com/SolaceLabs/solace-agent-mesh-core-plugins/",
             }
           ],
         },

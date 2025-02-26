@@ -70,9 +70,9 @@ Solace Agent Mesh comes with two built-in gateway interfaces called `REST Endpoi
 Fore more information about plugins and how to configure them, see [Plugins](./plugins/index.md).
 
 Some of the official core plugins gateways interfaces include:
-- [Slack Gateway](https://github.com/SolaceDev/solace-agent-mesh-core-plugins/tree/main/cm-slack): Allows integration with Slack workspaces and channels.
-- [MS Teams Gateway](https://github.com/SolaceDev/solace-agent-mesh-core-plugins/tree/main/cm-ms-teams): Provides integration with Microsoft Teams for chat-based interactions.
-- [Solace Event Mesh Gateway](https://github.com/SolaceDev/solace-agent-mesh-core-plugins/tree/main/solace-event-mesh): Enables communication with the PubSub+ event broker directly as an input interface. 
+- [Slack Gateway](https://github.com/SolaceLabs/solace-agent-mesh-core-plugins/tree/main/cm-slack): Allows integration with Slack workspaces and channels.
+- [MS Teams Gateway](https://github.com/SolaceLabs/solace-agent-mesh-core-plugins/tree/main/cm-ms-teams): Provides integration with Microsoft Teams for chat-based interactions.
+- [Solace Event Mesh Gateway](https://github.com/SolaceLabs/solace-agent-mesh-core-plugins/tree/main/solace-event-mesh): Enables communication with the PubSub+ event broker directly as an input interface. 
 
 :::note
 Each gateway type has its own configuration options and specific features. See the individual gateway documentation pages for detailed information on setup and usage.
