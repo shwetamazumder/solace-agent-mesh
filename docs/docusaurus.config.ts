@@ -8,8 +8,8 @@ import type * as Preset from "@docusaurus/preset-classic";
 const config: Config = {
   title: "Solace Agent Mesh",
   favicon: "/img/logo.png",
-  url: "https://solace.com", // TODO: Set the production url of your site here
-  baseUrl: "",
+  url: "https://solacelabs.github.io",
+  baseUrl: "solace-agent-mesh/",
   organizationName: "SolaceLabs",
   projectName: "solace-agent-mesh", 
 
