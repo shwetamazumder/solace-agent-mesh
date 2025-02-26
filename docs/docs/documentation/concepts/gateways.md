@@ -11,22 +11,22 @@ Gateways are a crucial component of the Solace Agent Mesh framework and provide 
 * manage the flow of information in and out of the system, ensuring secure and efficient communication
 
 :::tip[In one sentence]
-Gateways are essentially the user interface to the Solace Agent Mesh that controls the system persona.
+Gateways are essentially the user interface to Solace Agent Mesh that controls the system persona.
 :::
 
 ## Key Functions
 
-1. **Entry Points**: Gateways act as the entry points from the outside world into the Solace Agent Mesh, allowing external systems and users to interact with the framework.
+1. **Entry Points**: Gateways act as the entry points from the outside world into Solace Agent Mesh, allowing external systems and users to interact with the framework.
 
 2. **Configurable System Purpose**: Each gateway has a configurable system purpose that sets the context for all stimuli entering the Solace Agent Mesh through that gateway. This design allows for tailored processing based on the specific use case or domain.
 
 3. **Customizable Output Formatting**: Gateways have a configurable output description that controls how stimuli responses are formatted when sent back to the outside world. This configurable output description ensures that the output meets the requirements of the receiving system or user interface.
 
-4. **Multiple Interface Types**: Gateways can have different interfaces to accommodate various communication protocols and systems. Some examples include REST APIs, Solace Event Mesh, Slack integrations, browser-based interfaces, etc.
+4. **Multiple Interface Types**: Gateways can have different interfaces to accommodate various communication protocols and systems. Some examples include REST APIs, event meshes, Slack integrations, browser-based interfaces, etc.
 
 ## How Gateways Work
 
-The following diagram illustrates the complete flow of information through a gateway in the Solace Agent Mesh:
+The following diagram illustrates the complete flow of information through a gateway in Solace Agent Mesh:
 
 ```mermaid
 sequenceDiagram

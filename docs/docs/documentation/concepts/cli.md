@@ -168,7 +168,7 @@ sam chat [COMMAND] [OPTIONS]
 
 #### `login` - Authenticate to a SAM
 
-Authenticate to the Solace Agent Mesh Application.
+Authenticate to the Solace Agent Mesh application.
 
 ```sh
 sam chat login SERVER

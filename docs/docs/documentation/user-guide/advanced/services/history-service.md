@@ -131,7 +131,7 @@ The Solace Agent Mesh Framework provides the following built-in history provider
 
 ### Custom History Provider  
 
-To create a custom history provider, you can define a class that extends the `BaseHistoryProvider` class provided by the Solace Agent Mesh SDK:  
+To create a custom history provider, you can define a class that extends the `BaseHistoryProvider` class provided by Solace Agent Mesh framework:  
 
 ```python
 from solace_agent_mesh.services.history_service.history_providers.base_history_provider import BaseHistoryProvider

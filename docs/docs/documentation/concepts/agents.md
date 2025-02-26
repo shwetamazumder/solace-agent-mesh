@@ -107,7 +107,7 @@ Some of these agents are:
 
 ## User-Defined Agents
 
-Using the Solace Agent Mesh SDK and Solace Agent Mesh CLI, you can create your own agents to extend the system's capabilities. You can develop these agents in Python and dynamically add them to the system.
+Using Solace Agent Mesh and Solace Agent Mesh CLI, you can create your own agents to extend the system's capabilities. You can develop these agents in Python and dynamically add them to the system.
 
 The following Solace Agent Mesh (SAM) CLI command creates an agent template for you agent, action, and YAML config file:
 

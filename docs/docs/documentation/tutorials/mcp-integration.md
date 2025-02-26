@@ -5,23 +5,23 @@ sidebar_position: 20
 
 # MCP Integration
 
-In this tutorial, you will walk you through the process of integrating an Model Context Protocol (MCP) Server into the Solace Agent Mesh Framework.
+In this tutorial, you will walk you through the process of integrating an Model Context Protocol (MCP) Server into Solace Agent Mesh.
 
 :::info[Learn about agents and plugins]
-We recommend you read about [Agents](../concepts/agents.md) and [Using Plugins](../concepts/plugins/use-plugins.md) before you start this tutorial.
+You should have an understanding of  agents and plugins in the Solace Agent Mesh. For more information, see [Agents](../concepts/agents.md) and [Using Plugins](../concepts/plugins/use-plugins.md).
 :::
 
 As an example, you are going to integrate the [MCP server-filesystem Server](https://www.npmjs.com/package/@modelcontextprotocol/server-filesystem) into the Solace Agent Mesh Framework to perform simple filesystem commands.
 
 ## Setting Up the Environment
 
-First, you need to [install the Solace Agent Mesh SDK and CLI](../getting-started/installation.md), and then you'll want to [create a new SAM project](../getting-started/quick-start.md)
+You must [install Solace Agent Mesh and Solace Mesh Agent (SAM) CLI](../getting-started/installation.md), and then you'll want to [create a new SAM project](../getting-started/quick-start.md).
 
 This project also requires the installation of Node.js and the NPM package manager.
 
 ## Creating the `sam-mcp-server` Plugin
 
-You  will be using the `sam-mcp-server` plugin from the [solace-agent-mesh-core-plugins](https://github.com/SolaceLabs/solace-agent-mesh-core-plugins) repo for this tutorial. This plugin creates an agent that communicates with the MCP Server.
+You will be using the `sam-mcp-server` plugin from the [solace-agent-mesh-core-plugins](https://github.com/SolaceLabs/solace-agent-mesh-core-plugins) repo for this tutorial. This plugin creates an agent that communicates with the MCP Server.
 
 Once you have your project set up, you can add the `sam_mcp_server` plugin to the project using the following command:
 
