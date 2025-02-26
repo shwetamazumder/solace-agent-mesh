@@ -1,4 +1,4 @@
-name: Build and Deploy Docs
+name: Github Pages
 
 on:
   push:
@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - 'docs/**'
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -38,7 +39,7 @@ jobs:
         run: echo "/ docs/documentation/getting-started/introduction 200" > docs/build/_redirects
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v2
+        uses: actions/upload-pages-artifact@v4
         with:
           path: docs/build
 
