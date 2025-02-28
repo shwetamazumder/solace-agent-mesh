@@ -18,6 +18,7 @@
     frontend_use_authorization: ${WEBUI_FRONTEND_USE_AUTHORIZATION}
     frontend_auth_login_url: ${WEBUI_FRONTEND_AUTH_LOGIN_URL}
     frontend_welcome_message: ${WEBUI_FRONTEND_WELCOME_MESSAGE}
+    frontend_bot_name: ${WEBUI_FRONTEND_BOT_NAME}
     frontend_collect_feedback: ${WEBUI_FRONTEND_COLLECT_FEEDBACK}
     frontend_url: ${WEBUI_FRONTEND_URL}
     local_dev : ${WEBUI_LOCAL_DEV}
