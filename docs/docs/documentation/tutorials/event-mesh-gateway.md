@@ -59,18 +59,18 @@ The Event Mesh Gateway configuration is located in `./configs/gateways/jira/sola
 First, let's configure the input processor, with the instruction to create summaries from newly created Jira tickets:
 
 ```yaml
-  - event_mesh_input_config: &event_mesh_input_config
-        identity: jira_event_mesh
-        event_handlers:
-        - name: jira_event_handler
-          subscriptions:
-            - topic: jira/issue/created/>
-              qos: 1
-          input_expression: >
-           template:Create a concise summary for the newly created jira: title:{{text://input.payload:title}} body:{{text://input.payload:body}} id:{{text://input.payload:id}}. Return a json file with fields `id`, `type` (value is "summary") and `summary`.
-          payload_encoding: utf-8
-          payload_format: json
-          output_handler_name: jira_summary_emitter
+- event_mesh_input_config: &event_mesh_input_config
+      identity: jira_event_mesh
+      event_handlers:
+      - name: jira_event_handler
+        subscriptions:
+          - topic: jira/issue/created/>
+            qos: 1
+        input_expression: >
+          template:Create a concise summary for the newly created jira: title:{{text://input.payload:title}} body:{{text://input.payload:body}} id:{{text://input.payload:id}}. Return a json file with fields `id`, `type` (value is "summary") and `summary`.
+        payload_encoding: utf-8
+        payload_format: json
+        output_handler_name: jira_summary_emitter
 ```
 
 This input processor subscribes on the topic for newly created JIRAs (`jira/issue/created/>`), and creates a prompt using an input_expression that instructs Solace Event Mesh to create a summary of the Jira based on the title and body fields in the event. The response is returned as a JSON file.
@@ -80,26 +80,29 @@ This input processor subscribes on the topic for newly created JIRAs (`jira/issu
 Next, you configure the output processor to publish the summary to the update topic:
 
 ```yaml
-  - event_mesh_output_config: &event_mesh_output_config
-      output_handlers:
-        - name: jira_summary_emitter
-          attach_file_as_payload: true
-          topic: jira/issue/update
-          payload_encoding: none
-          payload_format: text
+- event_mesh_output_config: &event_mesh_output_config
+    output_handlers:
+      - name: jira_summary_emitter
+        attach_file_as_payload: true
+        topic: jira/issue/update
+        payload_encoding: none
+        payload_format: text
 ```
 
 The `jira_summary_emitter` output handler takes the json file with the summary, and adds it to the event payload. The event topic is `jira/issue/update`. By default, the file contents are added in base64 encoded format, so no additional payload encoding is required.
 
-## Configuring the Gateway
+### Response Format
 
-To ensure the gateway functions as a programmatic interface, configure it to return JSON responses only.
-Update the system_purpose in `./configs/gateways/jira/gateway.yaml`
+Finally, set up the response prompt so that the final output precisely meets our expectations. For this example, we want only formatted json. Update the response_format_prompt_config with the following:
 
 ```yaml
-      system_purpose: >
-        This is a programmatic interface. Return all responses as valid JSON objects without any additional formatting or markdown.
+- response_format_prompt_config: &response_format_prompt >
+      The response should be a valid, well-formed JSON object with no markdown formatting or additional wrappers
 ```
+
+## Configuring the Gateway
+
+No customization is required for `./configs/gateways/jira/gateway.yaml`
 
 ## Building and Running the Event Mesh Gateway
 
@@ -139,16 +142,10 @@ Next, click `Publish`.
 
 After a few seconds, you will see a new message in the **Subscriber** messages with topic `jira/issue/update` and a body similar to below:
 
-```plain
-ewogICAgImlkIjogIkpJUkEtMTQzMzIxIiwKICAgICJ0eXBlIjogInN1bW1hcnkiLAogICAgInN1bW1hcnkiOiAiRGF0YWJhc2VSZWFkRXhjZXB0aW9uIGVuY291bnRlcmVkIHdoaWxlIHJldHJpZXZpbmcgY3VzdG9tZXIgQUJDIGRhdGEiCn0=
-```
-
-Base64 decoding this message payload produces the json body with the expected field, `id`, `type`and `summary`.
-
 ```json
 {
     "id": "JIRA-143321",
     "type": "summary",
-    "summary": "DatabaseReadException encountered while retrieving customer ABC data"
+    "summary": "Database read error: Unable to retrieve record for key customer ABC despite confirmed existence"
 }
 ```
