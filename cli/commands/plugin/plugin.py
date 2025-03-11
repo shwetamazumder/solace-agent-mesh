@@ -44,7 +44,7 @@ def plugin_command(plugin):
     @click.argument("name")
     @click.option("--add-all", is_flag=True, help="Added the plugin with default of loading all exported files from the plugin")
     @click.option("--pip", is_flag=True, help="Install with pip.")
-    @click.option("--uv-pip", is_flag=True, help="Install with uv pip for uv environment.")
+    @click.option("--uv", is_flag=True, help="Install with uv pip.")
     @click.option("--poetry", is_flag=True, help="Install with poetry.")
     @click.option("--conda", is_flag=True, help="Install with conda.")
     @click.option(
@@ -52,7 +52,7 @@ def plugin_command(plugin):
         "--from-url",
         help="Install the plugin from a the given URL instead of the given name. (URL can be a file path or a git URL)",
     )
-    def add(name, add_all, uv_pip, pip, poetry, conda, from_url):
+    def add(name, add_all, uv, pip, poetry, conda, from_url):
         """
         Add a new plugin to solace-agent-mesh config yaml.
         Optional install the module if not found.
@@ -60,11 +60,11 @@ def plugin_command(plugin):
         Only one installation method can be selected at a time.
         """
         # Only one option can be true at a time
-        if sum([uv_pip, pip, poetry, conda]) > 1:
+        if sum([uv, pip, poetry, conda]) > 1:
             log_error("Only one installation method can be selected.")
             return 1
         installer = (
-            "uv-pip" if uv_pip 
+            "uv" if uv 
             else "pip" if pip 
             else "poetry" if poetry 
             else "conda" if conda 
@@ -81,10 +81,10 @@ def plugin_command(plugin):
         help="Removes the plugin module using pip",
     )
     @click.option(
-        "--uv-pip-uninstall",
+        "--uv-uninstall",
         default=False,
         is_flag=True,
-        help="Removes the plugin module using uv pip for uv environment",
+        help="Removes the plugin module using uv.",
     )
     @click.option(
         "--poetry-uninstall",
@@ -98,7 +98,7 @@ def plugin_command(plugin):
         is_flag=True,
         help="Removes the plugin module using conda",
     )
-    def remove(name, pip_uninstall, uv_pip_uninstall, poetry_uninstall, conda_uninstall):
+    def remove(name, pip_uninstall, uv_uninstall, poetry_uninstall, conda_uninstall):
         """
         Remove a plugin by removing it from solace-agent-mesh config yaml
         Optionally uninstall the module.
@@ -106,15 +106,15 @@ def plugin_command(plugin):
         Only one uninstallation method can be selected at a time.
         """
         # Only one option can be true at a time
-        if sum([pip_uninstall, uv_pip_uninstall, poetry_uninstall, conda_uninstall]) > 1:
+        if sum([pip_uninstall, uv_uninstall, poetry_uninstall, conda_uninstall]) > 1:
             log_error("Only one uninstallation method can be selected.")
             return 1
 
         installer = (
             "pip"
             if pip_uninstall
-            else "uv-pip"
-            if uv_pip_uninstall
+            else "uv"
+            if uv_uninstall
             else "poetry"
             if poetry_uninstall
             else "conda"
