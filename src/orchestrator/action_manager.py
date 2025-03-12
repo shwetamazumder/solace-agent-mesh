@@ -15,6 +15,7 @@ from datetime import datetime
 
 from solace_ai_connector.common.log import log
 from ..common.utils import format_agent_response
+from ..common.constants import ORCHESTRATOR_COMPONENT_NAME
 
 ACTION_REQUEST_TIMEOUT = 180
 
@@ -78,6 +79,17 @@ class ActionManager:
     def add_action_response(self, action_response_obj, response_text_and_files):
         """Add an action response to the list"""
         action_list_id = action_response_obj.get("action_list_id")
+
+        originator = action_response_obj.get("originator", "unknown")
+        # Ignore responses for actions that are not originated by the orchestrator
+        if originator != ORCHESTRATOR_COMPONENT_NAME:
+            log.debug(
+                "Ignoring response for action not originated by the orchestrator. "
+                "originator: %s   action_list_id: %s", 
+                originator, action_list_id
+            )
+            return None
+            
         with self.lock:
             action_list = self.action_requests.get(action_list_id)
             if action_list is None:
