@@ -14,6 +14,7 @@ import yaml
 from solace_ai_connector.common.log import log
 from solace_ai_connector.common.message import Message
 
+from ...common.constants import ORCHESTRATOR_COMPONENT_NAME
 from ...services.llm_service.components.llm_request_component import LLMRequestComponent, info as base_info
 from ...services.middleware_service.middleware_service import MiddlewareService
 from ...services.file_service import FileService
@@ -184,7 +185,7 @@ class OrchestratorStimulusProcessorComponent(LLMRequestComponent):
             message.set_user_properties(user_properties)
 
         input_data = self.get_user_input(chat_text)
-        user_info = payload.get("user_info", {"email": "unknown"})
+        user_info = user_properties.get("user_info", {"email": "unknown"})
 
         agent_state_yaml, examples = self.get_agents_yaml(user_properties)
         full_input = {
@@ -458,6 +459,7 @@ class OrchestratorStimulusProcessorComponent(LLMRequestComponent):
                             "action_name": action_name,
                             "action_params": action_params,
                             "action_idx": action_idx,
+                            "originator": ORCHESTRATOR_COMPONENT_NAME,
                         },
                         "topic": f"{os.getenv('SOLACE_AGENT_MESH_NAMESPACE')}solace-agent-mesh/v1/actionRequest/orchestrator/agent/{agent_name}/{action_name}",
                     }
