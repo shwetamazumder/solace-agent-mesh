@@ -67,7 +67,7 @@ sequenceDiagram
 
 Solace Agent Mesh comes with two built-in gateway interfaces called `REST Endpoint` and `Web UI`. Additionally, you can use other official core plugins to utilize other gateway types or create your own custom gateways.
 
-Fore more information about plugins and how to configure them, see [Plugins](./plugins/index.md).
+For more information about plugins and how to configure them, see [Plugins](./plugins/index.md).
 
 Some of the official core plugins gateways interfaces include:
 - [Slack Gateway](https://github.com/SolaceLabs/solace-agent-mesh-core-plugins/tree/main/cm-slack): Allows integration with Slack workspaces and channels.
