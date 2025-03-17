@@ -46,7 +46,8 @@ dependencies = [
     "litellm~=1.51.3",
     "ruamel.yaml~=0.18.6",
     "Flask-SocketIO~=5.4.1",
-    "kaleido~=0.2.1",
+    'kaleido~=0.1.0.post1; sys_platform == "win32"',
+    'kaleido~=0.2.1; sys_platform != "win32"',
     "mysql_connector_repackaged==0.3.1",
     "python_dateutil==2.9.0.post0",
     "PyYAML~=6.0.1",
@@ -56,9 +57,9 @@ dependencies = [
     "duckduckgo_search~=6.3.7",
     "markitdown~=0.0.1a3",
     "pyperclip~=1.9.0",
-    "solace-ai-connector~=1.0.1",
-    "solace-ai-connector-web~=0.1.0",
-    "solace-ai-connector-rest~=0.0.1",
+    "solace-ai-connector~=1.0.2",
+    "solace-ai-connector-web~=0.2.0",
+    "solace-ai-connector-rest~=0.0.2",
     "solace-ai-connector-slack~=0.0.1",
   ]
 
