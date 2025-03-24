@@ -65,7 +65,7 @@ Ensure you replace `/path/to/your/unzipped/data` with the path of where the extr
 
 ## Setting the Environment Variables
 
-The SQL Database agent requires several environment variables requires that you configure. Create or update your `.env` file with the following variables:
+The SQL Database agent requires that you configure several environment variables. You must create or update your `.env` file with the following variables for this tutorial:
 
 ```
 ABC_COFFEE_INFO_DB_TYPE=sqlite
@@ -75,7 +75,7 @@ ABC_COFFEE_INFO_DB_DESCRIPTION="Contains information about ABC Coffee Co. produc
 # You can leave other environment variables as unset or empty
 ```
 
-For SQLite, it uses a local file with no username or password. If you're using MySQL or PostgreSQL, you'll need to provide the appropriate environment variables for your database.
+SQLite stores the database in a local file and doesn't require a username or password for access. If you're using a database such as MySQL or PostgreSQL, you'll need to provide the appropriate environment variables for them.
 
 ## Running the Agent
 
@@ -121,7 +121,7 @@ The ABC Coffee Co. database contains the following tables:
 - support_ticket_comments
 - support_tickets
 
-The schemas for them are learned when the agent starts up.
+When the agent initializes, it learns the schemas for each of the mentioned tables.
 
 ## Conclusion
 
