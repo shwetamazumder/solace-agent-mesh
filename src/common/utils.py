@@ -332,7 +332,9 @@ def parse_orchestrator_response(response, last_chunk=False, tag_prefix=""):
             if id_match:
                 parsed_data["current_subject_starting_id"] = id_match.group(1)
 
-        elif f"<{tp}file" in line:
+        elif f"<{tp}file" in line or "<file" in line:
+            if "<file" in line:
+                tp = ""
             in_file = True
             # We can't guarantee the order of the attributes, so we need to parse them separately
             name_match = re.search(r'name\s*=\s*[\'"]([^\'"]+)[\'"]', line)
@@ -345,7 +347,7 @@ def parse_orchestrator_response(response, last_chunk=False, tag_prefix=""):
             }
             file_start_index = line.index(f"<{tp}file")
             file_line = line[file_start_index:]
-            if f"</{tp}file>" in line:
+            if f"</{tp}file>" in line or "</file>" in line:
                 file_end_index = line.index(f"</{tp}file>")
                 file_line = line[: file_end_index + len(f"</{tp}file>")]
                 file_content = [file_line]
@@ -357,7 +359,9 @@ def parse_orchestrator_response(response, last_chunk=False, tag_prefix=""):
             else:
                 file_content.append(file_line)
 
-        elif f"</{tp}file>" in line:
+        elif f"</{tp}file>" in line or "</file>" in line:
+            if "</file>" in line:
+                tp = ""
             if in_file:
                 if current_text:
                     add_content_entry(

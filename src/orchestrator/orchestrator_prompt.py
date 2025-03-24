@@ -329,7 +329,7 @@ def UserStimulusPrompt(
         f"\tExample of returning a file as zip: <{info['tag_prefix']}file><url>{FS_PROTOCOL}://519321d8-3506-4f8d-9377-e5d6ce74d917_filename.csv?encoding=zip</url></{info['tag_prefix']}file>.\n"
         f"You can also optionally return a non-persistent temporary file using the format <{info['tag_prefix']}file name=\"filename.csv\" mime_type=\"text/csv\">\n<data> data </data>\n</{info['tag_prefix']}file>.\n"
         f" can't nest `<{info['tag_prefix']}file>` tags inside the `<data>` tag. If you need to address another file within the data, use the URL with the `resolve=true` query parameter.\n"
-        "When using a {FS_PROTOCOL} URL outside of a file block, always include the 'resolve=true' query parameter to ensure the URL is resolved to the actual data.\n"
+        f"When using a {FS_PROTOCOL} URL outside of a file block, always include the 'resolve=true' query parameter to ensure the URL is resolved to the actual data.\n"
         f"</{info['tag_prefix']}file_instructions>"
     )
 
