@@ -3,8 +3,8 @@ from .base_history_provider import BaseHistoryProvider
 
 
 class MemoryHistoryProvider(BaseHistoryProvider):
-    def __init__(self, config=None, kwargs=None):
-        super().__init__(config, kwargs)
+    def __init__(self, config=None):
+        super().__init__(config)
         self.history = {}
 
     def store_history(self, session_id: str, role: str, content: str | dict):

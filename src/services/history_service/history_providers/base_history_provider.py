@@ -3,9 +3,8 @@ from typing import Union
 
 class BaseHistoryProvider(ABC):
 
-    def __init__(self, config=None, kwargs=None):
-        self.config = config
-        self.kwargs = kwargs
+    def __init__(self, config=None):
+        self.config = config or {}
         self.max_turns = self.config.get("max_turns")
         self.max_characters = self.config.get("max_characters")
         self.enforce_alternate_message_roles = self.config.get("enforce_alternate_message_roles")

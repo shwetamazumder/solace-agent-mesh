@@ -206,7 +206,7 @@ class OrchestratorStimulusProcessorComponent(LLMRequestComponent):
         }
 
         # Get the prompts
-        gateway_history = self.get_gateway_history(data)
+        gateway_history, memory_history = self.get_gateway_history(data)
         system_prompt = SystemPrompt(full_input, examples)
         if action_response_reinvoke:
             user_prompt = ActionResponsePrompt(
@@ -217,6 +217,9 @@ class OrchestratorStimulusProcessorComponent(LLMRequestComponent):
             user_prompt = UserStimulusPrompt(
                 full_input, gateway_history, errors, has_files
             )
+            if memory_history:
+                self.history.store_history(stimulus_uuid, "system", memory_history)
+
 
         # Store the user prompt in the history
         self.history.store_history(stimulus_uuid, "user", user_prompt)
@@ -375,6 +378,9 @@ class OrchestratorStimulusProcessorComponent(LLMRequestComponent):
 
     def get_gateway_history(self, data):
         gateway_history = data.get("history", [])
+        memory_history = None
+        if gateway_history and gateway_history[0].get("role") == "memory":
+            memory_history =gateway_history[0].get("content")
         # Returning the history from the last user message
         first_user_idx = None
         last_user_idx = None
@@ -385,13 +391,13 @@ class OrchestratorStimulusProcessorComponent(LLMRequestComponent):
                 last_user_idx = idx
 
         if first_user_idx is None:
-            return []  # No user query found
+            return [], memory_history  # No user query found
 
         if not last_user_idx > first_user_idx:
             # Latest user message is already handled by orchestator history
-            return []
+            return [], memory_history
 
-        return gateway_history[first_user_idx:last_user_idx]
+        return gateway_history[first_user_idx:last_user_idx], memory_history
 
     def get_user_input(self, chat_text):
 

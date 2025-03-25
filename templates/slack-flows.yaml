@@ -14,16 +14,6 @@
           identity_key_field: user_email
           <<: *gateway_config
           response_format_prompt: *response_format_prompt
-          llm_service_topic: ${SOLACE_AGENT_MESH_NAMESPACE}solace-agent-mesh/v1/llm-service/request/general-fast/
-          embedding_service_topic: ${SOLACE_AGENT_MESH_NAMESPACE}solace-agent-mesh/v1/embedding-service/request/text/
-        broker_request_response:
-          enabled: true
-          broker_config: *broker_connection
-          request_expiry_ms: 120000
-          payload_encoding: utf-8
-          payload_format: json
-          response_topic_prefix: ${SOLACE_AGENT_MESH_NAMESPACE}solace-agent-mesh/v1
-          response_queue_prefix: ${SOLACE_AGENT_MESH_NAMESPACE}solace-agent-mesh/v1
         component_input:
           source_expression: previous
         input_transforms:
@@ -72,16 +62,6 @@
         component_config:
           <<: *gateway_config
           copy_user_properties: true
-          llm_service_topic: ${SOLACE_AGENT_MESH_NAMESPACE}solace-agent-mesh/v1/llm-service/request/general-fast/
-          embedding_service_topic: ${SOLACE_AGENT_MESH_NAMESPACE}solace-agent-mesh/v1/embedding-service/request/text/
-        broker_request_response:
-          enabled: true
-          broker_config: *broker_connection
-          request_expiry_ms: 120000
-          payload_encoding: utf-8
-          payload_format: json
-          response_topic_prefix: ${SOLACE_AGENT_MESH_NAMESPACE}solace-agent-mesh/v1
-          response_queue_prefix: ${SOLACE_AGENT_MESH_NAMESPACE}solace-agent-mesh/v1
         component_input:
           source_expression: input.payload
 
