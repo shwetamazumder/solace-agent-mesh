@@ -3,8 +3,8 @@ import time
 from .base_history_provider import BaseHistoryProvider
 
 class RedisHistoryProvider(BaseHistoryProvider):
-    def __init__(self, config=None):
-        super().__init__(config)
+    def __init__(self, config=None, kwargs=None):
+        super().__init__(config, kwargs)
         try:
             import redis
         except ImportError:
