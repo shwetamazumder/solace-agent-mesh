@@ -71,31 +71,24 @@ class DescribeImage(Action):
         Get the description of the image using the provided image URL.
         """
         agent = self.get_agent()
-        try:
-            content = agent.do_llm_service_request(
-                [
-                    {
-                        "role": "user",
-                        "content": [
-                            {
-                                "type": "text",
-                                "text": "describe the content of this image in detail",
-                            },
-                            {
-                                "type": "image_url",
-                                "image_url": {"url": base64_image_url},
-                            },
-                        ],
-                    }
-                ],
-                resolve_files=True,
-            ).get("content")
-        except TimeoutError as e:
-            log.error("LLM request timed out: %s", str(e))
-            return ActionResponse(message="LLM request timed out")
-        except Exception as e:
-            log.error("Failed to process content with LLM: %s", str(e))
-            return ActionResponse(message="Failed to process content with LLM")
+        content = agent.do_llm_service_request(
+            [
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": "describe the content of this image in detail",
+                        },
+                        {
+                            "type": "image_url",
+                            "image_url": {"url": base64_image_url},
+                        },
+                    ],
+                }
+            ],
+            resolve_files=True,
+        ).get("content")
 
         return content
 
