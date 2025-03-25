@@ -3,6 +3,8 @@ import threading
 import json
 from datetime import datetime
 
+from litellm import completion
+
 from .base_history_provider import BaseHistoryProvider
 
 # Some prompts were imported and modified from mem0
@@ -20,10 +22,11 @@ Types of Information to Remember:
 7. Styles and Preferences: Keep track of how the user wants you to reply to messages, the tone of the conversation, and other stylistic preferences.
 8. Miscellaneous Information Management: Keep track of favorite books, movies, brands, and other miscellaneous details that the user shares.
 9. Update notes: if the user is specifically asking you to remember or forget something.
+10. Ignore general facts: Ignore global information, like weather, news, or general knowledge or facts.
 
 You must respond in JSON format with 3 keys:
-- "facts": a list of general facts extracted from the conversation.
-- "instructions": Preferences, styles, and learned behaviors from the user.
+- "facts": a list of general facts extracted from the conversation. Do not include the basic stuff, only if something worths remembering.
+- "instructions": Preferences, styles, and learned behaviors from the user. Do not include chat history of user actions here. This is to only record user preferences and styles.
 - "update_notes": Any specific instructions from the user to remember or forget something.
 
 Each of these can be an empty list if no relevant information is found. You prioritize extracting information from "user" message, mostly you would NOT need anything from the "assistant" message. It's completely fine to return empty if no important information is found in the conversation.
@@ -33,7 +36,7 @@ Here are some few shot examples:
 Input: Hi.
 Output: {{"facts" : [], "instructions" : [], "update_notes" : []}}
 
-Input: There are branches in trees.
+Input: The capital of Canada is Ottawa, and water boils at 100 degrees Celsius.
 Output: {{"facts" : [], "instructions" : [], "update_notes" : []}}
 
 Input: Hi, I am looking for a restaurant in San Francisco.
@@ -60,11 +63,12 @@ Return the facts and preferences in a json format as shown above. Do not return 
 Remember the following:
 - Today's date is {datetime.now().strftime("%Y-%m-%d")}.
 - Do not return anything from the example prompts provided above.
-- ignore specific details, like IDs, URLs, or numbers unless they are needed to be remembered long term or asked by the user.
+- Ignore specific details, like IDs, URLs, or numbers unless they are needed to be remembered long term or asked by the user.
 - You are only analyzing and extracting information from the conversation, you're not replying to the user.
 - If you do not find anything relevant in the below conversation, you can return an empty list.
 - Create the facts based on the user and assistant messages only. Prioritize the user messages, most assistant replies can be ignored.
 - Make sure to return the response in the format mentioned in the examples. 
+- Ignore if the user is asking to clear history or forget everything you know. (That is not a update note)
 
 Following is a conversation between the user and the assistant. You have to extract the relevant facts and instructions, and update notes about the user, if any, from the conversation and return them in the json format as shown above.
 
@@ -200,9 +204,25 @@ class LongTermMemory():
     A class to manage long-term memory for the assistant.
     """
 
-    def __init__(self, llm_request=None, embedding_request=None):
+    def __init__(self, llm_config):
+        def llm_request(messages):
+            response = completion(
+                model=llm_config.get("model"),
+                api_key=llm_config.get("api_key"),
+                base_url=llm_config.get("base_url"),
+                messages=messages
+                )
+            message = response.get("choices")[0].get("message")
+            
+            with open("llm.jsonl", "a") as f:
+                f.write(json.dumps({
+                    "request": messages[0].get('content')[:200],
+                    "response": message.get('content'),
+                }) + "\n")
+
+            return message
+        
         self.llm_request = llm_request
-        self.embedding_request = embedding_request
         
     def retrieve_user_memory(self, history: dict) -> str:
         instructions = ""
@@ -232,7 +252,10 @@ class LongTermMemory():
 
         return instructions + facts + episodes
 
-    def summarize_chat(self, chat: dict)-> str:
+    def summarize_chat(self, chat: list)-> str:
+        if not chat:
+            return ""
+
         messages = [
             {
                 "role": "system",
@@ -247,6 +270,12 @@ class LongTermMemory():
         return response
 
     def update_summary(self, initial_summary: str, new_summary: str) -> str:
+        if not initial_summary:
+            return new_summary
+        
+        if not new_summary:
+            return initial_summary
+        
         prompt = (
             """### Old Conversation Summary:\n"""
             f"\n```\n{initial_summary}\n```\n\n\n"
@@ -266,7 +295,7 @@ class LongTermMemory():
         response = self.llm_request(messages).get("content")
         return response
 
-    def extract_memory_from_chat(self, chat: dict) -> dict:
+    def extract_memory_from_chat(self, chat: list) -> dict:
         messages = [
             {
                 "role": "system",
@@ -277,7 +306,8 @@ class LongTermMemory():
                 "content": (
                     "Here's the conversation between the user and the assistant:\n"
                     f"```\n{json.dumps(chat, indent=4)}\n```\n\n"
-                    "Please extract the relevant facts and instructions from the conversation and return them in the JSON format with the keys 'facts', 'instructions', and 'update_notes' and no prefix or affix."
+                    "It's okay to return with empty lists. Only extract if the information is relevant or important.\n"
+                    "Please extract the relevant facts and instructions from the conversation and return them in the JSON format with the keys 'facts', 'instructions', and 'update_notes' and no prefix or affix.\n"
                 )
                 
             }
@@ -286,6 +316,12 @@ class LongTermMemory():
         return memory
 
     def update_user_memory(self, initial_memory: dict, new_memory: dict) -> dict:
+        if not initial_memory or not (initial_memory.get("facts") or initial_memory.get("instructions")):
+            return {
+                "facts": new_memory.get("facts", []),
+                "instructions": new_memory.get("instructions", []),
+            }
+        
         prompt = (
             """### Initial Memory:\n"""
             f"\n```\n{json.dumps({
@@ -315,7 +351,7 @@ class LongTermMemory():
         memory = self._get_and_validate_memory(messages)
         return memory
     
-    def _get_and_validate_memory(self, messages: dict) -> dict:
+    def _get_and_validate_memory(self, messages: list) -> dict:
         attempt = 0
         while attempt < 3:
             response = self.llm_request(messages).get("content")
@@ -356,10 +392,23 @@ class Store():
     history = {}
 
     def store(self, key: str, data: dict):
+        print("Storing data", data)
+        with open("history.jsonl", "a") as f:
+            f.write(json.dumps({
+                **data,
+                "source": "store",
+            }) + "\n")
         self.history[key] = data
     
     def retrieve(self, key: str):
-        return self.history.get(key, {})
+        history = self.history.get(key, {})
+        print("Retrieving data", history)
+        with open("history.jsonl", "a") as f:
+            f.write(json.dumps({
+                **history,
+                "source": "store",
+            }) + "\n")
+        return history
     
     def delete(self, key: str):
         if key in self.history:
@@ -374,17 +423,15 @@ class LongTermMemoryHistoryProvider(BaseHistoryProvider):
     A history provider that stores history in memory and manages long-term memory.
     """
 
-    def __init__(self, config=None, kwargs=None):
-        super().__init__(config, kwargs)
-        self.do_llm_service_request = kwargs.get("do_llm_service_request")
-        self.do_embedding_service_request = kwargs.get("do_embedding_service_request")
-
-        if not self.do_llm_service_request or not self.do_embedding_service_request:
-            raise ValueError("do_llm_service_request and do_embedding_service_request are required in kwargs")
+    def __init__(self, config=None):
+        super().__init__(config)
+        llm_config = self.config.get("llm_config", {})
+        if not llm_config.get("model") or not llm_config.get("api_key"):
+            raise ValueError("Missing required configuration for Long-Term Memory provider, Missing 'model' or 'api_key' in 'llm_config'.")
 
         self.store = Store()
-        self.long_term_memory = LongTermMemory(self.do_llm_service_request, self.do_embedding_service_request)
-        self.long_term_memory_role = (config or {}).get("memory_role", "system")
+        self.long_term_memory = LongTermMemory( llm_config)
+        self.long_term_memory_role = "memory"
 
     def store_history(self, session_id: str, role: str, content: str | dict):
         """
@@ -572,7 +619,7 @@ class LongTermMemoryHistoryProvider(BaseHistoryProvider):
             history = self.store.retrieve(session_id)
             cut_off_index = max(0, len(history["history"]) - keep_levels)
 
-            summary = self.long_term_memory.summarize_chat(history[:cut_off_index])
+            summary = self.long_term_memory.summarize_chat(history["history"][:cut_off_index])
             updated_summary = self.long_term_memory.update_summary(history["summary"], summary)
 
             history["summary"] = updated_summary

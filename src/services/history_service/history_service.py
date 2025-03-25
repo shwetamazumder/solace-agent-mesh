@@ -34,13 +34,12 @@ DEFAULT_HISTORY_POLICY = {
 class HistoryService(AutoExpiry, metaclass=AutoExpirySingletonMeta):
     history_provider: BaseHistoryProvider
 
-    def __init__(self, config={}, identifier=None, **kwargs):
+    def __init__(self, config={}, identifier=None):
         """
         Initialize the history service.
         """
         self.identifier = identifier
         self.config = config
-        self.kwargs = kwargs
         self.provider_type = self.config.get("type", DEFAULT_PROVIDER)
         self.time_to_live = self.config.get("time_to_live", ONE_HOUR)
         self.expiration_check_interval = self.config.get(
@@ -61,8 +60,7 @@ class HistoryService(AutoExpiry, metaclass=AutoExpirySingletonMeta):
         if self.provider_type in HISTORY_PROVIDERS:
             # Load built-in history provider
             self.history_provider = HISTORY_PROVIDERS[self.provider_type](
-                history_policy,
-                kwargs
+                history_policy
             )
         else:
             try:
