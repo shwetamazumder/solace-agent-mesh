@@ -6,7 +6,7 @@ toc_max_heading_level: 5
 
 # Configuration
 
-Solace Agent Mesh uses a YAML-based configuration system. The main configuration file is `solace-agent-mesh.yaml` in your project root. 
+Solace Agent Mesh uses a YAML-based configuration system. The main configuration file is `solace-agent-mesh.yaml` in your project root.
 
 :::info
 Removing any configuration will use the default values for that configuration.
@@ -33,7 +33,7 @@ built_in:
 
 ### Directory Configuration
 
-You can specify the locations for where the system looks for varies components:
+You can specify the locations for where the system looks for various components:
 
 ```yaml
 config_directory: tmp/configs
