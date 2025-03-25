@@ -45,6 +45,9 @@ Output: {{"facts" : ["Looking for a restaurant in San Francisco"], "instructions
 Input: Yesterday, I had a meeting with John at 3pm. We discussed the new project.
 Output: {{"facts" : ["Had a meeting with John at 3pm", "Discussed the new project"], "instructions" : [], "update_notes" : []}}
 
+Input: Please use the color red for all the lines in graphs you generate, redo the previous diagram.
+Output: {{"facts" : [], "instructions" : [], "update_notes" : ["User prefers color red for all lines in graphs"]}}
+
 Input: Sam is no longer my boss, remember that.
 Output: {{"facts" : [], "instructions" : [], "update_notes" : ["Sam is no longer my boss"]}}
 
@@ -185,7 +188,7 @@ If the direction is to update the memory, then you have to update it.
     
     "SUMMARIZE": """You are a Personal Information Organizer, specialized in accurately sorting facts, user memories, and summarizing. Your primary role is to extract relevant pieces of information and summarize the user conversations. This allows for easy retrieval and personalization in future interactions.
 
-In your summary, you should include the key points and important details from the conversation. Ignore the details that are not relevant or important. The summary should be concise and capture the essence of the conversation. Prioritize the user messages while summarizing the conversation.
+In your summary, you should include the key points and important details from the conversation. Ignore the details that are not relevant or important. The summary should be concise and capture the essence of the conversation. Prioritize the user messages while summarizing the conversation. Do not include minor details or generic information.
 
 You're only summarizing the conversation, not replying to the user. You should summarize the conversation in a clear and concise manner. You can use bullet points or numbered lists if needed. Respond in normal text format with only the summary of the conversation. Do not return anything else or do not prefix them with backticks.
 """,
@@ -214,7 +217,7 @@ class LongTermMemory():
                 )
             message = response.get("choices")[0].get("message")
             
-            with open("llm.jsonl", "a") as f:
+            with open("tmp/llm.jsonl", "a") as f:
                 f.write(json.dumps({
                     "request": messages[0].get('content')[:200],
                     "response": message.get('content'),
@@ -234,20 +237,20 @@ class LongTermMemory():
 
         if memory.get("instructions"):
             instructions =(
-            f"\nFollowing instructions and preferences have been extracted from your previous conversations with the user:\n"
-            f"{json.dumps(memory['instructions'], indent=4)}\n"
+            f"\n### Following instructions and preferences have been extracted from your previous conversations with the user:\n"
+            f" - {'\n - '.join(memory['instructions'])}\n"
         )
             
         if memory.get("facts"):
             facts = (
-                f"\nFollowing facts have been extracted from your previous conversations with the user:\n"
-                f"{json.dumps(memory['facts'], indent=4)}\n"
+                f"\n### Following facts have been extracted from your previous conversations with the user:\n"
+                f" - {'\n - '.join(memory['facts'])}\n"
             )
         
         if summary:
             episodes = (
-                f"\nFollowing is a summary of your previous conversations with the user:\n"
-                f"{summary}\n"
+                f"\n### Following is a summary of your previous conversations with the user:\n"
+                f"```\n{summary}\n```\n"
             )
 
         return instructions + facts + episodes
@@ -329,7 +332,7 @@ class LongTermMemory():
                 "instructions": initial_memory.get("instructions", []),
             }, indent=4)}\n```\n\n\n"
             """### Update Notes:\n"""
-            f"\n```\n - {"\n - ".join(new_memory.get("update_notes", [])) or "None"}\n```\n\n\n"
+            f"\n```\n - {'\n - '.join(new_memory.get("update_notes", [])) or "None"}\n```\n\n\n"
             """### New Memory:\n"""
             f"\n```\n{json.dumps({
                 "facts": new_memory.get("facts", []),
@@ -393,7 +396,7 @@ class Store():
 
     def store(self, key: str, data: dict):
         print("Storing data", data)
-        with open("history.jsonl", "a") as f:
+        with open("tmp/history.jsonl", "a") as f:
             f.write(json.dumps({
                 **data,
                 "source": "store",
@@ -403,7 +406,7 @@ class Store():
     def retrieve(self, key: str):
         history = self.history.get(key, {})
         print("Retrieving data", history)
-        with open("history.jsonl", "a") as f:
+        with open("tmp/history.jsonl", "a") as f:
             f.write(json.dumps({
                 **history,
                 "source": "store",
