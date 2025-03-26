@@ -1,5 +1,3 @@
-import json
-
 from .store import Store
 
 class MemoryStore(Store):
@@ -9,22 +7,10 @@ class MemoryStore(Store):
     history = {}
 
     def store(self, key: str, data: dict):
-        print("Storing data", key, data)
-        with open("tmp/history.jsonl", "a") as f:
-            f.write(json.dumps({
-                **data,
-                "source": "store",
-            }) + "\n")
         self.history[key] = data
     
     def retrieve(self, key: str):
         history = self.history.get(key, {})
-        print("Retrieving data", history)
-        with open("tmp/history.jsonl", "a") as f:
-            f.write(json.dumps({
-                **history,
-                "source": "store",
-            }) + "\n")
         return history
     
     def delete(self, key: str):

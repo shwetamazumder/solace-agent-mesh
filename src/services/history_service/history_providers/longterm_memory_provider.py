@@ -5,6 +5,8 @@ from .base_history_provider import BaseHistoryProvider
 from .long_term_memory.long_term_memory import LongTermMemory
 from .long_term_memory.store import get_store
 
+from ....common.constants import HISTORY_MEMORY_ROLE
+
 
 class LongTermMemoryHistoryProvider(BaseHistoryProvider):
     """
@@ -13,7 +15,7 @@ class LongTermMemoryHistoryProvider(BaseHistoryProvider):
 
     def __init__(self, config=None):
         super().__init__(config)
-        
+
         llm_config = self.config.get("llm_config", {})
         if not llm_config.get("model") or not llm_config.get("api_key"):
             raise ValueError("Missing required configuration for Long-Term Memory provider, Missing 'model' or 'api_key' in 'llm_config'.")
@@ -22,7 +24,6 @@ class LongTermMemoryHistoryProvider(BaseHistoryProvider):
         self.store = get_store(self.store_config)
 
         self.long_term_memory = LongTermMemory(llm_config)
-        self.long_term_memory_role = "memory"
 
     def store_history(self, session_id: str, role: str, content: str | dict):
         """
@@ -131,7 +132,7 @@ class LongTermMemoryHistoryProvider(BaseHistoryProvider):
         if long_term_memory:
             return [
                 {
-                    "role": self.long_term_memory_role,
+                    "role": HISTORY_MEMORY_ROLE,
                     "content": long_term_memory
                 },
                 *history["history"]

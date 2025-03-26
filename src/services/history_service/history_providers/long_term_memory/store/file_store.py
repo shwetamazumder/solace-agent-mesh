@@ -1,38 +1,51 @@
-import json
+"""
+FileStore is a simple store that stores data in files.
+"""
 
+import json
+import os
 from .store import Store
 
 
 class FileStore(Store):
     """
-    A simple in-memory store for storing history.
+    A simple file store for storing data.
     """
-    history = {}
+    def __init__(self, config=None):
+        super().__init__(config)
+
+        if not self.config.get("path"):
+            raise ValueError("Missing required configuration for FileStore, Missing 'path' in 'store_config'.")
+        
+        self.path = self.config.get("path")
+
+        if not self._exists(self.path):
+            os.makedirs(self.path, exist_ok=True)
 
     def store(self, key: str, data: dict):
-        print("Storing data", key, data)
-        with open("tmp/history.jsonl", "a") as f:
-            f.write(json.dumps({
-                **data,
-                "source": "store",
-            }) + "\n")
-        self.history[key] = data
+        file_path = os.path.join(self.path, f"{key}.json")
+
+        with open(file_path, "w", encoding="utf-8") as f:
+            f.write(json.dumps(data))
+
     
     def retrieve(self, key: str):
-        history = self.history.get(key, {})
-        print("Retrieving data", history)
-        with open("tmp/history.jsonl", "a") as f:
-            f.write(json.dumps({
-                **history,
-                "source": "store",
-            }) + "\n")
-        return history
-    
+        file_path = os.path.join(self.path, f"{key}.json")
+        if not self._exists(file_path):
+            return None
+        
+        with open(file_path, "r", encoding="utf-8") as f:
+            return json.load(f)
+
     def delete(self, key: str):
-        if key in self.history:
-            del self.history[key]
+        file_path = os.path.join(self.path, f"{key}.json")
+        if self._exists(file_path):
+            os.remove(file_path)
 
     def keys(self):
-        return list(self.history.keys())
+        return [f[:-5] for f in os.listdir(self.path) if f.endswith('.json')]
+    
+    def _exists(self, path: str):
+        return os.path.exists(path)
 
 
