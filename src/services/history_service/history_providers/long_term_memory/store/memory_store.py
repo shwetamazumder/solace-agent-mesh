@@ -12,7 +12,7 @@ class MemoryStore(Store):
     def retrieve(self, key: str):
         history = self.history.get(key, {})
         return history
-    
+
     def delete(self, key: str):
         if key in self.history:
             del self.history[key]

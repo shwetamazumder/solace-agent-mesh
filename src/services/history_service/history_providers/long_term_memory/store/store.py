@@ -20,7 +20,7 @@ class Store(ABC):
         pass
 
     @abstractmethod
-    def retrieve(self, key: str):
+    def retrieve(self, key: str) -> dict:
         """
         Retrieve data from the store.
 
@@ -28,7 +28,17 @@ class Store(ABC):
         :return: The data stored under the key.
         """
         pass
-    
+
+    def update(self, key: str, data: dict):
+        """
+        Update data in the store using the partial data provided.
+
+        :param key: The key to update the data under.
+        :param data: The data to update.
+        """
+        history = self.retrieve(key).copy()
+        history.update(data)
+        self.store(key, history)
 
     @abstractmethod
     def delete(self, key: str):

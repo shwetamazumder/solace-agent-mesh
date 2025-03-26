@@ -84,10 +84,12 @@ class LongTermMemoryHistoryProvider(BaseHistoryProvider):
                 if memory and (memory.get("facts") or memory.get("instructions") or memory.get("update_notes")):
                     history = self.store.retrieve(session_id)
                     updated_memory = self.long_term_memory.update_user_memory(history["memory"], memory)
-                    history["memory"] = updated_memory
-                    self.store.store(session_id, history)
+                    self.store.update(session_id, {
+                        "memory": updated_memory
+                    })
 
                 # Check if active memory requires summarization
+                history = self.store.retrieve(session_id)
                 if history["num_characters"] > self.max_characters or history["num_turns"] > self.max_turns:
                     cut_off_index = 0
                     if history["num_turns"] > self.max_turns:
@@ -103,11 +105,13 @@ class LongTermMemoryHistoryProvider(BaseHistoryProvider):
 
                     cut_off_index = cut_off_index if cut_off_index % 2 == 0 else cut_off_index + 1 # Ensure even number of turns
                     cut_off_index = min(cut_off_index, len(history["history"]) - 1) + 1 # Ensure cut_off_index is within bounds
-                    summary = self.long_term_memory.summarize_chat(history[:cut_off_index])
+                    summary = self.long_term_memory.summarize_chat(history["history"][:cut_off_index])
                     updated_summary = self.long_term_memory.update_summary(history["summary"], summary)
 
-                    history["summary"] = updated_summary
+                    history = self.store.retrieve(session_id)
 
+                    history["history"] = history["history"][cut_off_index-1:]
+                    history["summary"] = updated_summary
                     history["num_characters"] = sum(len(str(entry["content"])) for entry in history["history"])
                     history["num_turns"] = len(history["history"])
                     history["last_active_time"] = time.time()
@@ -160,6 +164,7 @@ class LongTermMemoryHistoryProvider(BaseHistoryProvider):
                 },
                 "summary": {}
             }
+            
         history["last_active_time"] = time.time()
 
         # Check duplicate
@@ -203,9 +208,6 @@ class LongTermMemoryHistoryProvider(BaseHistoryProvider):
         history = self.store.retrieve(session_id)
         if not history:
             return
-        
-        if clear_files:
-            history["files"] = []
 
         def background_task():
             history = self.store.retrieve(session_id)
@@ -214,13 +216,18 @@ class LongTermMemoryHistoryProvider(BaseHistoryProvider):
             summary = self.long_term_memory.summarize_chat(history["history"][:cut_off_index])
             updated_summary = self.long_term_memory.update_summary(history["summary"], summary)
 
-            history["summary"] = updated_summary
-            history["history"] = history["history"][-keep_levels:]
-            history["num_turns"] = keep_levels
-            history["num_characters"] = sum(len(str(entry["content"])) for entry in history["history"])
-            history["last_active_time"] = time.time()
+            updates = {
+                "summary": updated_summary,
+                "history": [] if keep_levels <= 0 else history["history"][-keep_levels:],
+                "num_turns": keep_levels,
+                "num_characters": sum(len(str(entry["content"])) for entry in history["history"]),
+                "last_active_time": time.time(),
+            }
 
-            self.store.store(session_id, history)
+            if clear_files:
+                updates["files"] = []
+
+            self.store.update(session_id, updates)
 
         threading.Thread(target=background_task).start()
 
