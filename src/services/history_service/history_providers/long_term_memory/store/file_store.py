@@ -32,7 +32,7 @@ class FileStore(Store):
     def retrieve(self, key: str):
         file_path = os.path.join(self.path, f"{key}.json")
         if not self._exists(file_path):
-            return None
+            return {}
         
         with open(file_path, "r", encoding="utf-8") as f:
             return json.load(f)

@@ -1,6 +1,7 @@
 from datetime import datetime
 import json
 
+from solace_ai_connector.common.log import log
 from litellm import completion
 
 # Some prompts were imported and modified from mem0
@@ -20,7 +21,8 @@ Types of Information to Remember:
 9. Update notes: if the user is specifically asking you to remember or forget something.
 10. Ignore general facts: Ignore global information, like weather, news, or general knowledge or facts.
 
-You must respond in JSON format with 3 keys:
+You must respond in JSON format with 4 keys:
+- "reasoning": Your reasoning and thoughts on why you think the extracted facts, instructions, and update_notes are important.
 - "facts": a list of general facts extracted from the conversation. Do not include the basic stuff, only if something worths remembering.
 - "instructions": Preferences, styles, and learned behaviors from the user. Do not include chat history of user actions here. This is to only record user preferences and styles.
 - "update_notes": Any specific instructions from the user to remember or forget something.
@@ -66,8 +68,10 @@ Remember the following:
 - You are only analyzing and extracting information from the conversation, you're not replying to the user.
 - If you do not find anything relevant in the below conversation, you can return an empty list.
 - Create the facts based on the user and assistant messages only. Prioritize the user messages, most assistant replies can be ignored.
+- The sentences must be complete and understandable without prior context.
 - Make sure to return the response in the format mentioned in the examples. 
 - Ignore if the user is asking to clear history or forget everything you know. (That is not a update note)
+- Don't repeat the same things in both facts and instructions. 
 
 Following is a conversation between the user and the assistant. You have to extract the relevant facts and instructions, and update notes about the user, if any, from the conversation and return them in the json format as shown above.
 
@@ -85,10 +89,11 @@ Compare newly retrieved facts with the existing memory. For each new fact, decid
 - DELETE: Delete an existing memory element
 - NONE: Make no change (if the fact is already present or irrelevant)
 
-You will be provided the initial and new memory, each includes `facts` and `instructions` keys. You might also be provided some update notes which give you further instructions.
+You will be provided the initial and new memory, each includes `facts` and `instructions` keys. You might also be provided some special instruction notes.
+
 You must return the initial memory updated with the new facts and instructions based on the above operations. 
 
-Do NOT add, remove, or summarize anything from initial memory unless instructed by the new memory or the update notes.
+Do NOT add, remove, or summarize anything from initial memory unless instructed by the new memory or the special notes.
 
 There are specific guidelines to select which operation to perform:
 
@@ -113,10 +118,13 @@ There are specific guidelines to select which operation to perform:
         }
 
 2. **Update**: If the retrieved facts contain information that is already present in the memory but the information is totally different, then you have to update it. 
+
 If the retrieved fact contains information that conveys the same thing as the elements present in the memory, then you have to keep the fact which has the most information. 
+
 Example (a) -- if the memory contains "User likes to play cricket" and the retrieved fact is "Loves to play cricket with friends", then update the memory with the retrieved facts.
+
 Example (b) -- if the memory contains "Likes cheese pizza" and the retrieved fact is "Loves cheese pizza", then you do not need to update it because they convey the same information.
-If the direction is to update the memory, then you have to update it.
+
 - **Example**:
     - Initial Memory:
         {
@@ -136,7 +144,7 @@ If the direction is to update the memory, then you have to update it.
         "instructions": []
         }
 
-3. **Delete**: If the retrieved facts contain information that contradicts the information present in the memory, or has been specified in update notes, then you have to delete it. Or if the direction is to delete the memory, then you have to delete it.
+3. **Delete**: If the retrieved facts contain information that contradicts the information present in the memory, or has been specified in update notes, then you have to delete it. Do not include the entry that needs to be deleted in the new memory.
 
 - **Example**:
     - Initial Memory:
@@ -179,7 +187,9 @@ If the direction is to update the memory, then you have to update it.
 
 
 
-    Always return all the previous facts and instructions in the memory, unless updated. Respond in JSON format with the keys "facts" and "instructions" containing the updated memory. If there are no changes, return the initial memory as it is. Do not return anything else or do not prefix them with backticks.
+    Always return all the previous facts and instructions in the memory that are not effected by the update as well. Respond in JSON format with the keys "reasoning", "facts" and "instructions" containing the updated memory. For the "reasoning" key, provide a brief explanation of the changes made to the memory and the reasoning and thought process behind it.
+    
+    If there are no changes, return the initial memory as it is. Do not return anything else or do not prefix them with backticks.
 """,
     
     "SUMMARIZE": """You are a Personal Information Organizer, specialized in accurately sorting facts, user memories, and summarizing. Your primary role is to extract relevant pieces of information and summarize the user conversations. This allows for easy retrieval and personalization in future interactions.
@@ -212,14 +222,6 @@ class LongTermMemory():
                 messages=messages
                 )
             message = response.get("choices")[0].get("message")
-            
-            # TODO: Clean this up
-            with open("tmp/llm.jsonl", "a") as f:
-                f.write(json.dumps({
-                    "request": messages[0].get('content')[:200],
-                    "response": message.get('content'),
-                }) + "\n")
-
             return message
         
         self.llm_request = llm_request
@@ -307,7 +309,8 @@ class LongTermMemory():
                     "Here's the conversation between the user and the assistant:\n"
                     f"```\n{json.dumps(chat, indent=4)}\n```\n\n"
                     "It's okay to return with empty lists. Only extract if the information is relevant or important.\n"
-                    "Please extract the relevant facts and instructions from the conversation and return them in the JSON format with the keys 'facts', 'instructions', and 'update_notes' and no prefix or affix.\n"
+                    "Don't extract basic or generic information as facts!\n"
+                    "Respond in the JSON format with the keys 'reasoning', 'facts', 'instructions', and 'update_notes' and no prefix or affix.\n"
                 )
                 
             }
@@ -328,14 +331,14 @@ class LongTermMemory():
                 "facts": initial_memory.get("facts", []),
                 "instructions": initial_memory.get("instructions", []),
             }, indent=4)}\n```\n\n\n"
-            """### Update Notes:\n"""
+            """### Special Notes:\n"""
             f"\n```\n - {'\n - '.join(new_memory.get("update_notes", [])) or "None"}\n```\n\n\n"
             """### New Memory:\n"""
             f"\n```\n{json.dumps({
                 "facts": new_memory.get("facts", []),
                 "instructions": new_memory.get("instructions", []),
             }, indent=4)}\n```\n\n"
-            "Return the complete updated memory in the JSON format with the keys 'facts' and 'instructions' and no prefix or affix."
+            "Return the complete updated memory in the JSON format with the keys 'reasoning', 'facts' and 'instructions' and no prefix or affix."
         )
 
         messages = [
@@ -366,20 +369,26 @@ class LongTermMemory():
             try:
                 parsed_response = json.loads(response)
             except Exception as e:
+                log.error("Error parsing response as JSON: %s", str(e))
                 messages.append(
                     {
                         "role": "user",
-                        "content": f"Error parsing response as JSON: {str(e)}"
+                        "content": f"Error parsing response as JSON: {str(e)}. Don't apologize, just try again and respond only with the valid JSON"
                     }
                 )
                 continue
 
-            if not parsed_response.get("facts") or not parsed_response.get("instructions"): 
+            if "facts" not in parsed_response or "instructions" not in parsed_response: 
+                log.error("Missing facts or instructions in response")
                 messages.append({
                     "role": "user",
-                    "content": "Error: Missing facts or instructions in response"
+                    "content": "Error: Missing facts or instructions in response. Don't apologize, just try again and respond only with the valid JSON"
                 })
                 continue
+            
+            # remove reasoning key, used only for COT
+            if "reasoning" in parsed_response:
+                parsed_response.pop("reasoning", None)
 
             return parsed_response
         return None
