@@ -1,4 +1,3 @@
-import json
 from abc import ABC, abstractmethod
 
 
@@ -6,6 +5,9 @@ class Store(ABC):
     """
     Store base class.
     """
+
+    def __init__(self, config=None):
+        self.config = config or {}
 
     @abstractmethod
     def store(self, key: str, data: dict):

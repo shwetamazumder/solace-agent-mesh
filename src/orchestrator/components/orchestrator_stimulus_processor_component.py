@@ -14,7 +14,7 @@ import yaml
 from solace_ai_connector.common.log import log
 from solace_ai_connector.common.message import Message
 
-from ...common.constants import ORCHESTRATOR_COMPONENT_NAME
+from ...common.constants import ORCHESTRATOR_COMPONENT_NAME, HISTORY_MEMORY_ROLE
 from ...services.llm_service.components.llm_request_component import LLMRequestComponent, info as base_info
 from ...services.middleware_service.middleware_service import MiddlewareService
 from ...services.file_service import FileService
@@ -379,7 +379,7 @@ class OrchestratorStimulusProcessorComponent(LLMRequestComponent):
     def get_gateway_history(self, data):
         gateway_history = data.get("history", [])
         memory_history = None
-        if gateway_history and gateway_history[0].get("role") == "memory":
+        if gateway_history and gateway_history[0].get("role") == HISTORY_MEMORY_ROLE:
             memory_history =gateway_history[0].get("content")
         # Returning the history from the last user message
         first_user_idx = None

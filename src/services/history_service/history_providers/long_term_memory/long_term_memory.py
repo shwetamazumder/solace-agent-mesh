@@ -213,6 +213,7 @@ class LongTermMemory():
                 )
             message = response.get("choices")[0].get("message")
             
+            # TODO: Clean this up
             with open("tmp/llm.jsonl", "a") as f:
                 f.write(json.dumps({
                     "request": messages[0].get('content')[:200],
