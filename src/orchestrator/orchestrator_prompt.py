@@ -99,6 +99,7 @@ def get_file_handling_prompt(tp: str) -> str:
     For all files, there's `encoding` parameter, this is used to encode the file format. The supported values are `datauri`, `base64`, `zip`, and `gzip`. Use this to convert a file to ZIP or datauri for HTML encoding.
         For example (return a file as zip): `{FS_PROTOCOL}://c27e6908-55d5-4ce0-bc93-a8e28f84be12_annual_report.csv?encoding=zip&resolve=true`
         Example 2 (HTML tag must be datauri encoded): `<img src="{FS_PROTOCOL}://c9183b0f-fd11-48b4-ad8f-df221bff3da9_generated_image.png?encoding=datauri&resolve=true" alt="image">`
+        Example 3 (return a regular image directly): `amfs://a1b2c3d4-5e6f-7g8h-9i0j-1k2l3m4n5o6p_photo.png?resolve=true` - When returning images directly in messaging platforms like Slack, don't use any encoding parameter
 
     For all files, there's `resolve=true` parameter, this is used to resolve the url to the actual data before processing.
         For example: `{FS_PROTOCOL}://577c928c-c126-42d8-8a48-020b93096110_names.csv?resolve=true`
