@@ -181,10 +181,10 @@ class HistoryService(AutoExpiry, metaclass=AutoExpirySingletonMeta):
         # Check if active session history requires truncation
         if (history["num_characters"] > self.history_policy.get("max_characters") 
             or history["num_turns"] > self.history_policy.get("max_turns")):
-    
+            
             cut_off_index = 0
             if history["num_turns"] > self.history_policy.get("max_turns"):
-                cut_off_index = max(0, int(self.history_policy.get("max_turns") * 0.4)) # 40% of max_turns
+                cut_off_index = max(0, int(self.history_policy.get("max_turns") * 0.5)) # 40% of max_turns
 
             if history["num_characters"] > self.history_policy.get("max_characters"):
                 index = 0
@@ -194,8 +194,7 @@ class HistoryService(AutoExpiry, metaclass=AutoExpirySingletonMeta):
                     index += 1
                 cut_off_index = max(cut_off_index, index)
 
-            cut_off_index = cut_off_index if cut_off_index % 2 == 0 else cut_off_index + 1 # Ensure even number of turns
-            cut_off_index = min(cut_off_index, len(history["history"]) - 1) + 1 # Ensure cut_off_index is within bounds
+            cut_off_index = min(cut_off_index, len(history["history"])) # Ensure cut_off_index is within bounds 
 
             if self.use_long_term_memory:
                 cut_of_history = history["history"][:cut_off_index].copy()
@@ -209,8 +208,8 @@ class HistoryService(AutoExpiry, metaclass=AutoExpirySingletonMeta):
                         self.history_provider.store_session(session_id, fetched_history)
 
                 threading.Thread(target=background_summary_task).start()
-                
-            history["history"] = history["history"][cut_off_index-1:]
+
+            history["history"] = history["history"][cut_off_index:]
             history["num_characters"] = sum(len(str(entry["content"])) for entry in history["history"])
             history["num_turns"] = len(history["history"])
             history["last_active_time"] = time.time()
