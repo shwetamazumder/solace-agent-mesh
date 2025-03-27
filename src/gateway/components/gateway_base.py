@@ -2,7 +2,7 @@ from solace_ai_connector.components.component_base import ComponentBase
 from solace_ai_connector.common.log import log
 from ...services.history_service import HistoryService
 from ..identity.identity_provider import IdentityProvider
-from ...common.constants import DEFAULT_IDENTITY_KEY_FIELD
+from ...common.constants import DEFAULT_IDENTITY_KEY_FIELD, SESSION_ID_SESSION_TYPE, IDENTITY_SESSION_TYPE
 
 
 class GatewayBase(ComponentBase):
@@ -11,7 +11,7 @@ class GatewayBase(ComponentBase):
         self.gateway_id = self.get_config("gateway_id", "default-change-me")
         self.history_instance = self._initialize_history()
 
-    def _initialize_history(self):
+    def _initialize_history(self) -> HistoryService:
         self.use_history = self.get_config("retain_history", True)
 
         if not self.use_history:

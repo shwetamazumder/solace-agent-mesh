@@ -226,14 +226,11 @@ class LongTermMemory():
         
         self.llm_request = llm_request
         
-    def retrieve_user_memory(self, history: dict) -> str:
+    def retrieve_user_memory(self, memory: dict, summary:str) -> str:
         instructions = ""
         facts = ""
         episodes = ""
-
-        memory = history.get("memory", {})
-        summary = history.get("summary", "")
-
+        
         if memory.get("instructions"):
             instructions =(
             f"\n### Following instructions and preferences have been extracted from your previous conversations with the user:\n"
@@ -316,6 +313,7 @@ class LongTermMemory():
             }
         ]
         memory = self._get_and_validate_memory(messages)
+
         return memory
 
     def update_user_memory(self, initial_memory: dict, new_memory: dict) -> dict:

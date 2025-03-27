@@ -209,17 +209,20 @@ class GatewayInput(GatewayBase):
 
             copied_data["history"] = []
             if self.use_history:
+                other_history_props = {
+                    "identity": identity_value,
+                }
                 prompt = data.get("text", "")
-                self.history_instance.store_history(session_id, "user", prompt)
+                self.history_instance.store_history(session_id, "user", prompt, other_history_props)
 
                 for file in attached_files:
-                    self.history_instance.store_file(session_id, file)
+                    self.history_instance.store_file(session_id, file )
 
                 # retrieve all files for the session
                 available_files = self.history_instance.get_files(session_id)
 
                 # Add history to the data
-                copied_data["history"] = self.history_instance.get_history(session_id)
+                copied_data["history"] = self.history_instance.get_history(session_id, other_history_props)
 
             available_files = json.dumps(available_files)
         except Exception as e:
