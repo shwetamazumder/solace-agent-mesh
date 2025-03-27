@@ -170,6 +170,7 @@ class GatewayOutput(GatewayBase):
         file_service = FileService()
         user_properties = message.get_user_properties()
         session_id = user_properties.get("session_id")
+        identity_value = user_properties.get("identity")
         files = data.get("files", [])
 
         # Extract the interface queue ID
@@ -181,6 +182,10 @@ class GatewayOutput(GatewayBase):
         )
 
         if self.use_history and session_id:
+            other_history_props = {
+                "identity": identity_value,
+            }
+
             topic = message.get_topic()
             content = data.get("text") or ""
 
@@ -195,12 +200,12 @@ class GatewayOutput(GatewayBase):
             ):
                 if content:
                     self.history_instance.store_history(
-                        session_id, "assistant", content
+                        session_id, "assistant", content, other_history_props
                     )
 
             for file in files:
                 self.history_instance.store_history(
-                    session_id, "assistant", f'\n[Returned file: {{name: {file.get("name")}, url: {file.get("url")}}}]\n'
+                    session_id, "assistant", f'\n[Returned file: {{name: {file.get("name")}, url: {file.get("url")}}}]\n', other_history_props
                 )
                 self.history_instance.store_file(session_id, file)
 
