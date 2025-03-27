@@ -92,7 +92,7 @@ runtime:
       config: {}
 ```
 
-- `type`: The File service type, For example, `volume`, `bucket`, `memory`, or `your-custom-service`.
+- `type`: The File service type, for example, `volume`, `bucket`, `memory`, or `your-custom-service`.
 - `max_time_to_live`: The file retention period, in seconds.
 - `expiration_check_interval`: The clean-up check interval, in seconds.
 - `config`: The service-specific configurations. The config `key` must match the service `type`.

@@ -25,11 +25,13 @@ You will create an Event Mesh Gateway that:
 This creates a streamlined workflow where bug reports are automatically enhanced with clear, AI-generated summaries.
 
 ## Setting Up the Environment
+
 First, you need to [install Solace Agent Mesh and the Solace Agent Mesh (SAM) CLI](../getting-started/installation.md), and then you'll want to [create a new Solace Agent Mesh project](../getting-started/quick-start.md)
 
 For this tutorial, you will need to create or use an existing [Solace Event Broker](https://solace.com/products/event-broker/) or [event mesh](https://solace.com/solutions/initiative/event-mesh/) created using PubSub+ event brokers.
 
 ## Creating the Event Mesh Gateway
+
 Once you have your project set up, you can add the plugin to Solace Agent Mesh:
 
 ```sh
@@ -60,8 +62,8 @@ First, let's configure the input processor, with the instruction to create summa
 
 ```yaml
 - event_mesh_input_config: &event_mesh_input_config
-      identity: jira_event_mesh
-      event_handlers:
+    identity: jira_event_mesh
+    event_handlers:
       - name: jira_event_handler
         subscriptions:
           - topic: jira/issue/created/>
@@ -73,7 +75,7 @@ First, let's configure the input processor, with the instruction to create summa
         output_handler_name: jira_summary_emitter
 ```
 
-This input processor subscribes on the topic for newly created JIRAs (`jira/issue/created/>`), and creates a prompt using an input_expression that instructs Solace Event Mesh to create a summary of the Jira based on the title and body fields in the event. The response is returned as a JSON file.
+This input processor subscribes on the topic for newly created Jiras (`jira/issue/created/>`), and creates a prompt using an input_expression that instructs Solace Event Mesh to create a summary of the Jira based on the title and body fields in the event. The response is returned as a JSON file.
 
 ### Output Processor
 
@@ -89,7 +91,7 @@ Next, you configure the output processor to publish the summary to the update to
         payload_format: text
 ```
 
-The `jira_summary_emitter` output handler takes the json file with the summary, and adds it to the event payload. The event topic is `jira/issue/update`. By default, the file contents are added in base64 encoded format, so no additional payload encoding is required.
+The `jira_summary_emitter` output handler takes the json file with the summary, and adds it to the event payload. The event topic is `jira/issue/update`. The file contents added to the event payload using the specified encoding and format configuration parameters.
 
 ### Response Format
 
@@ -97,7 +99,7 @@ Finally, set up the response prompt so that the final output precisely meets our
 
 ```yaml
 - response_format_prompt_config: &response_format_prompt >
-      The response should be a valid, well-formed JSON object with no markdown formatting or additional wrappers
+    The response should be a valid, well-formed JSON object with no markdown formatting or additional wrappers
 ```
 
 ## Configuring the Gateway
@@ -120,9 +122,10 @@ Now that the system is running, let's test the Event Mesh Gateway.
 
 1. Open the **Try Me!** tab of the [Solace PubSub+ Broker Manager](https://docs.solace.com/Admin/Broker-Manager/PubSub-Manager-Overview.htm).
 
-2. Connect both the *Publisher* and *Subscriber* panels by clicking their respective `Connect` buttons.
+2. Connect both the _Publisher_ and _Subscriber_ panels by clicking their respective `Connect` buttons.
 
 3. In the Subscriber panel:
+
    - Enter `jira/issue/update` in the `Topic Subscriber` field
    - Click `Subscribe`
 
@@ -132,9 +135,9 @@ Now that the system is running, let's test the Event Mesh Gateway.
 
 ```json
 {
-    "id": "JIRA-143321",
-    "title": "Exception when reading customer record",
-    "body": "I got a DatabaseReadException when trying to get the data for customer ABC. The error indicated that the customer didn't exist, while they are our biggest customer!"
+  "id": "JIRA-143321",
+  "title": "Exception when reading customer record",
+  "body": "I got a DatabaseReadException when trying to get the data for customer ABC. The error indicated that the customer didn't exist, while they are our biggest customer!"
 }
 ```
 
@@ -144,8 +147,8 @@ After a few seconds, you will see a new message in the **Subscriber** messages w
 
 ```json
 {
-    "id": "JIRA-143321",
-    "type": "summary",
-    "summary": "Database read error: Unable to retrieve record for key customer ABC despite confirmed existence"
+  "id": "JIRA-143321",
+  "type": "summary",
+  "summary": "Database read error: Unable to retrieve record for key customer ABC despite confirmed existence"
 }
 ```
