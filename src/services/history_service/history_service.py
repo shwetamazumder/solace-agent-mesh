@@ -179,14 +179,14 @@ class HistoryService(AutoExpiry, metaclass=AutoExpirySingletonMeta):
             threading.Thread(target=background_task).start()
 
         # Check if active session history requires truncation
-        if (history["num_characters"] > self.history_policy.get("max_characters") 
+        if ((self.history_policy.get("max_characters") and (history["num_characters"] > self.history_policy.get("max_characters"))) 
             or history["num_turns"] > self.history_policy.get("max_turns")):
             
             cut_off_index = 0
             if history["num_turns"] > self.history_policy.get("max_turns"):
                 cut_off_index = max(0, int(self.history_policy.get("max_turns") * 0.5)) # 40% of max_turns
 
-            if history["num_characters"] > self.history_policy.get("max_characters"):
+            if self.history_policy.get("max_characters") and (history["num_characters"] > self.history_policy.get("max_characters")):
                 index = 0
                 characters = 0
                 while characters < self.history_policy.get("max_characters") and index < len(history["history"]) - 1:
@@ -233,7 +233,7 @@ class HistoryService(AutoExpiry, metaclass=AutoExpirySingletonMeta):
             user_identity = other_history_props.get("identity", session_id)
             stored_memory = self.long_term_memory_store.get_session(user_identity)
             if stored_memory:
-                long_term_memory = self.long_term_memory_service.retrieve_user_memory(stored_memory, history.get("summary", ""))
+                long_term_memory = self.long_term_memory_service.retrieve_user_memory(stored_memory.get("memory", {}), history.get("summary", ""))
                 if long_term_memory:
                     return [
                         {
