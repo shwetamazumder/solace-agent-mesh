@@ -2,13 +2,15 @@ from solace_ai_connector.components.component_base import ComponentBase
 from solace_ai_connector.common.log import log
 from ...services.history_service import HistoryService
 from ..identity.identity_provider import IdentityProvider
-from ...common.constants import DEFAULT_IDENTITY_KEY_FIELD, SESSION_ID_SESSION_TYPE, IDENTITY_SESSION_TYPE
+from ...common.constants import DEFAULT_IDENTITY_KEY_FIELD
+from ...orchestrator.orchestrator_prompt import LONG_TERM_MEMORY_PROMPT
 
 
 class GatewayBase(ComponentBase):
     def __init__(self, info, **kwargs):
         super().__init__(info, **kwargs)
         self.gateway_id = self.get_config("gateway_id", "default-change-me")
+        self.system_prompt_affix = ""
         self.history_instance = self._initialize_history()
 
     def _initialize_history(self) -> HistoryService:
@@ -19,6 +21,9 @@ class GatewayBase(ComponentBase):
 
         history_config = self.get_config("history_config", {})
 
+        if history_config.get("long_term_memory"):
+            self.system_prompt_affix = LONG_TERM_MEMORY_PROMPT
+
         try:
             return HistoryService(
                 history_config, identifier=self.gateway_id + "_history"
@@ -26,6 +31,7 @@ class GatewayBase(ComponentBase):
         except (ImportError, AttributeError, ValueError) as e:
             log.error("Failed to load history class: %s", e)
             raise
+
 
     def _initialize_identity_component(self):
         identity_config = self.get_config("identity", {})
