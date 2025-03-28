@@ -155,3 +155,41 @@ Once completed, you can add the `module_path` key to the configuration object wi
    }
 }
 ```
+
+
+## Long-Term Memory
+
+Solace-Agent-Mesh history service also comes with a long-term memory feature. This feature allows the system to extract and store important information and style preferences from the user's interactions. Also, to keep a track of all topics discussed in the same session. This feature is useful for personalizing the user experience and providing a more engaging conversation.
+
+The long-term memory includes the following 3 features:
+
+- Facts: The system stores important facts and information that the user has shared during the conversation. This information can be used to provide more personalized responses to the user's queries. 
+- Instructions: The system can also store instructions provided by the user, which can be referenced in future interactions. These include user preferences, style preferences, and how the system should interact and reply to users.
+- Session Summary: The system summarizes the key points discussed during the session, which can help in maintaining context in future interactions. The session summary is forgotten if not accessed for a long time.
+
+Facts and instructions memory are stored and accessible across sessions and gateways. They are tied to the user's unique identifier (provided by the gateway).
+
+### Enabling Long-Term Memory
+
+To enable the long-term memory for a gateway, update the `history_policy` of the `gateway.yaml` file with the following configuration:
+
+```yaml
+- history_policy: &default_history_policy
+    # ... Some other Configs ...
+    enable_long_term_memory: true # Enables the long-term memory feature
+    long_term_memory_config: # Required if enable_long_term_memory is set to true
+      summary_time_to_live: 432000 # How long to keep the session summary before forgetting, default 5 Days in seconds
+      llm_config: # LLM configuration to be used for the AI features of the long-term memory
+        model: ${LLM_SERVICE_PLANNING_MODEL_NAME}
+        api_key: ${LLM_SERVICE_API_KEY}
+        base_url: ${LLM_SERVICE_ENDPOINT}
+      store_config: # Configuration for storing long-term memory
+        type: "file" # History Provider
+        module_path: . # Not required if using one of the existing History Providers
+        # Other configs required for the history provider
+        path: /tmp/history  # Required for file history provider
+```
+
+:::warning
+The long-term memory feature requires the gateway to provide unique user identifiers. The user identifier is used to store and retrieve long-term memory information. If the user identifier is not provided, the long-term memory can not be stored separately for each user.
+:::

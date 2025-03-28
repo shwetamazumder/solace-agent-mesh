@@ -47,7 +47,7 @@ class HistoryService(AutoExpiry, metaclass=AutoExpirySingletonMeta):
         self.identifier = identifier
         self.config = config
         self.time_to_live = self.config.get("time_to_live", ONE_HOUR)
-        self.use_long_term_memory = self.config.get("long_term_memory", False)
+        self.use_long_term_memory = self.config.get("enable_long_term_memory", False)
         self.expiration_check_interval = self.config.get(
             "expiration_check_interval", FIVE_MINUTES
         )

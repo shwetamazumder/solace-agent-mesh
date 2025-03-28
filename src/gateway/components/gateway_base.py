@@ -21,7 +21,7 @@ class GatewayBase(ComponentBase):
 
         history_config = self.get_config("history_config", {})
 
-        if history_config.get("long_term_memory"):
+        if history_config.get("enable_long_term_memory", False):
             self.system_prompt_affix = LONG_TERM_MEMORY_PROMPT
 
         try:
