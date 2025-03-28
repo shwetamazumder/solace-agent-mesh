@@ -11,6 +11,7 @@ from ..common import AutoExpiry, AutoExpirySingletonMeta
 from .history_providers.memory_history_provider import MemoryHistoryProvider
 from .history_providers.redis_history_provider import RedisHistoryProvider
 from .history_providers.file_history_provider import FileHistoryProvider
+from .history_providers.mongodb_history_provider import MongoDBHistoryProvider
 from .history_providers.base_history_provider import BaseHistoryProvider
 from .long_term_memory.long_term_memory import LongTermMemory
 
@@ -18,6 +19,7 @@ HISTORY_PROVIDERS = {
     "redis": RedisHistoryProvider,
     "memory": MemoryHistoryProvider,
     "file": FileHistoryProvider,
+    "mongodb": MongoDBHistoryProvider
 }
 
 
