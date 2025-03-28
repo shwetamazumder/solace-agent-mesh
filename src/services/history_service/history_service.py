@@ -5,7 +5,7 @@ from typing import Union
 
 from solace_ai_connector.common.log import log
 
-from ...common.time import ONE_HOUR, FIVE_MINUTES
+from ...common.time import ONE_HOUR, FIVE_MINUTES, ONE_DAY
 from ...common.constants import HISTORY_MEMORY_ROLE
 from ..common import AutoExpiry, AutoExpirySingletonMeta
 from .history_providers.memory_history_provider import MemoryHistoryProvider
@@ -25,6 +25,7 @@ DEFAULT_PROVIDER = "memory"
 
 DEFAULT_MAX_TURNS = 40
 DEFAULT_MAX_CHARACTERS = 50_000
+DEFAULT_SUMMARY_TIME_TO_LIVE = ONE_DAY * 5
 
 DEFAULT_HISTORY_POLICY = {
     "max_turns": DEFAULT_MAX_TURNS,
@@ -316,27 +317,40 @@ class HistoryService(AutoExpiry, metaclass=AutoExpirySingletonMeta):
         history = self.history_provider.get_session(session_id).copy()
         if not history:
             return
+        
+        if history.get("history") or (clear_files and history.get("files")):
+            cut_off_index = max(0, len(history["history"]) - keep_levels)
+            cut_off_history = history["history"][:cut_off_index]
 
-        cut_off_index = max(0, len(history["history"]) - keep_levels)
-        cut_off_history = history["history"][:cut_off_index]
+            if self.use_long_term_memory and cut_off_history:
+                def background_task(): 
+                    summary = self.long_term_memory_service.summarize_chat(cut_off_history)
+                    updated_summary = self.long_term_memory_service.update_summary(history["summary"], summary)
 
-        if self.use_long_term_memory:
-            def background_task(): 
-                summary = self.long_term_memory_service.summarize_chat(cut_off_history)
-                updated_summary = self.long_term_memory_service.update_summary(history["summary"], summary)
+                    fetched_history = self.history_provider.get_session(session_id).copy()
+                    if fetched_history:
+                        fetched_history["summary"] = updated_summary
+                        self.history_provider.store_session(session_id, fetched_history)
+                threading.Thread(target=background_task).start()
 
-                fetched_history = self.history_provider.get_session(session_id).copy()
-                if fetched_history:
-                    fetched_history["summary"] = updated_summary
-                    self.history_provider.store_session(session_id, fetched_history)
-            threading.Thread(target=background_task).start()
+            history["history"] = [] if keep_levels <= 0 else history["history"][-keep_levels:]
+            history["num_turns"] = keep_levels
+            history["num_characters"] = sum(len(str(entry["content"])) for entry in history["history"])
+            history["last_active_time"] = time.time()
 
-        history["history"] = [] if keep_levels <= 0 else history["history"][-keep_levels:]
-        history["num_turns"] = keep_levels
-        history["num_characters"] = sum(len(str(entry["content"])) for entry in history["history"])
-        history["last_active_time"] = time.time()
+            if clear_files:
+                history["files"] = []
 
-        if clear_files:
-            history["files"] = []
-
-        return self.history_provider.store_session(session_id, history)
+            return self.history_provider.store_session(session_id, history)
+        
+        # Summaries get cleared at a longer expiry time
+        elif  self.use_long_term_memory and history.get("summary"):
+            elapsed_time = time.time() - history["last_active_time"]
+            summary_ttl = self.long_term_memory_config.get("summary_time_to_live", DEFAULT_SUMMARY_TIME_TO_LIVE)
+            if elapsed_time > summary_ttl:
+                return self.history_provider.delete_session(session_id)
+            
+        # Delete the session if it has no chat history, files or summary
+        else:
+            return self.history_provider.delete_session(session_id)
+        
