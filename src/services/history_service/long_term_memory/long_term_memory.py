@@ -23,11 +23,11 @@ Types of Information to Remember:
 
 You must respond in JSON format with 4 keys:
 - "reasoning": Your reasoning and thoughts on why you think the extracted facts, instructions, and update_notes are important.
-- "facts": a list of general facts extracted from the conversation. Do not include the basic stuff, only if something worths remembering.
+- "facts": a list of general facts extracted from the conversation. Do not include the basic information, only if something is worth remembering.
 - "instructions": Preferences, styles, and learned behaviors from the user. Do not include chat history of user actions here. This is to only record user preferences and styles.
 - "update_notes": Any specific instructions from the user to remember or forget something.
 
-Each of these can be an empty list if no relevant information is found. You prioritize extracting information from "user" message, mostly you would NOT need anything from the "assistant" message. It's completely fine to return empty if no important information is found in the conversation.
+Each of these can be an empty list if no relevant information is found. Prioritize extracting information from the "user" message; the "assistant" message is rarely needed. It's completely fine to return empty if no important information is found in the conversation.
 
 Here are some few shot examples:
 
@@ -187,7 +187,7 @@ Example (b) -- if the memory contains "Likes cheese pizza" and the retrieved fac
 
 
 
-    Always return all the previous facts and instructions in the memory that are not effected by the update as well. Respond in JSON format with the keys "reasoning", "facts" and "instructions" containing the updated memory. For the "reasoning" key, provide a brief explanation of the changes made to the memory and the reasoning and thought process behind it.
+    Always return all the previous facts and instructions in the memory that are not affected by the update as well. Respond in JSON format with the keys "reasoning", "facts" and "instructions" containing the updated memory. For the "reasoning" key, provide a brief explanation of the changes made to the memory and the reasoning and thought process behind it.
     
     If there are no changes, return the initial memory as it is. Do not return anything else or do not prefix them with backticks.
 """,
