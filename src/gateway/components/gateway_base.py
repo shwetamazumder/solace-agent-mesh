@@ -10,7 +10,7 @@ class GatewayBase(ComponentBase):
     def __init__(self, info, **kwargs):
         super().__init__(info, **kwargs)
         self.gateway_id = self.get_config("gateway_id", "default-change-me")
-        self.system_prompt_affix = ""
+        self.system_purpose_prompt_suffix = ""
         self.history_instance = self._initialize_history()
 
     def _initialize_history(self) -> HistoryService:
@@ -22,7 +22,7 @@ class GatewayBase(ComponentBase):
         history_config = self.get_config("history_config", {})
 
         if history_config.get("enable_long_term_memory", False):
-            self.system_prompt_affix = LONG_TERM_MEMORY_PROMPT
+            self.system_purpose_prompt_suffix = LONG_TERM_MEMORY_PROMPT
 
         try:
             return HistoryService(

@@ -130,7 +130,7 @@ class GatewayInput(GatewayBase):
 
     def __init__(self, **kwargs):
         super().__init__(info, **kwargs)
-        self.system_purpose = self.get_config("system_purpose", DEFAULT_SYSTEM_PURPOSE) + self.system_prompt_affix
+        self.system_purpose = self.get_config("system_purpose", DEFAULT_SYSTEM_PURPOSE) + self.system_purpose_prompt_suffix
         self.interaction_type = self.get_config(
             "interaction_type", DEFAULT_INTERACTION_TYPE
         )
