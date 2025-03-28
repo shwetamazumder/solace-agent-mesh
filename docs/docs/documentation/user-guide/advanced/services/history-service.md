@@ -126,8 +126,56 @@ The `History service` class uses a history provider to store and manage history 
 
 The Solace Agent Mesh Framework provides the following built-in history providers:  
 
-- **Memory History Provider**: Stores history in memory.  
-- **Redis History Provider**: Stores history in a Redis database.  
+- **Memory History Provider** (`memory`): Stores history in memory.  
+- **Redis History Provider** (`redis`): Stores history in a Redis database.  
+- **File History Provider** (`file`): Stores history in files on the local filesystem.  
+- **MongoDB History Provider** (`mongodb`): Stores history in a MongoDB database.
+- **Custom History Provider**: Allows for the implementation of user-defined history storage solutions.
+
+### Built-in History Providers
+
+#### **Provider: `memory`**  
+
+The memory history provider stores history in memory. This provider is useful for storing temporary data that does not need to be persisted across restarts.  
+
+Memory provider does not require any additional packages or configurations.
+
+#### **Provider: `file`**
+The file history provider stores history in files on the local filesystem. This provider is useful for easy access to history data and for storing large amounts of data. If using a container, the management of the volume is the responsibility of the user.
+
+The file provider requires the following configuration:  
+
+- `path` (*required* - *string*): The directory path where history files will be stored.
+
+File provider does not require any additional packages.
+
+#### **Provider: `redis`**
+The Redis history provider stores history in a Redis database. This provider is useful for storing history data that needs to be persisted across restarts and shared across multiple instances of the application.
+
+The Redis provider requires the following configuration:
+- redis_host (*required* - *string*): The hostname of the Redis server.
+- redis_port (*required* - *int*): The port number of the Redis server.
+- redis_db (*required* - *int*): The database number to use in the Redis server.
+
+The Redis provider requires the `redis` package. To install the package, run the following command:  
+
+```bash
+pip install redis
+```
+
+#### **Provider: `mongodb`**
+The MongoDB history provider stores history in a MongoDB database. This provider is useful for storing history data that needs to be persisted across restarts and shared across multiple instances of the application.
+
+The MongoDB provider requires the following configuration:
+- mongodb_uri (*required* - *string*): The connection URI for the MongoDB server.
+- mongodb_db (*optional* - *string* - *default*: `history_db`): The name of the database to use in the MongoDB server.
+- mongodb_collection (*optional* - *string* - *default*: `sessions`): The name of the collection to use in the MongoDB database.
+
+The MongoDB provider requires the `pymongo` package. To install the package, run the following command:  
+
+```bash
+pip install pymongo
+```
 
 ### Custom History Provider  
 
