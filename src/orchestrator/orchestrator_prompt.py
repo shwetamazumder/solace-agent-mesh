@@ -515,3 +515,5 @@ def format_example_for_anthropic(example: dict) -> str:
     """
 
     return xml_content
+
+LONG_TERM_MEMORY_PROMPT = " - You are capable of remembering things and have long-term memory, this happens automatically."

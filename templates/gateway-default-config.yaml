@@ -1,5 +1,5 @@
 - history_policy: &default_history_policy
-    type: "memory" # "memory", "redis", or your custom module name
+    type: "memory" # "memory", "redis", "file", "mongodb" or your custom module name
     module_path: . # Path to module, Only needed if you are using a custom module
     time_to_live: 3600 # 1 hour
     expiration_check_interval: 300 # 5 minutes
