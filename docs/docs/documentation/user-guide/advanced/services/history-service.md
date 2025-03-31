@@ -39,7 +39,7 @@ history_service = HistoryService(config, identifier="my_identifier")
 
 ### Configuration
 
-The History service requires a configuration object when creating a new instance. The configuration object should have the following structure:
+The History service requires a configuration object when creating a new instance. The configuration object must have the following structure:
 
 ```json
 {
@@ -124,16 +124,16 @@ You can optionally pass a second parameter, `keep_levels`, to specify the number
 
 ## History Providers
 
-The `History service` class uses a history provider to store and manage history data. The provider is defined in the configuration object passed to the service.
+The `HistoryServer` class uses a history provider to store and manage history data. The provider is defined in the configuration object passed to the service.
 
-The Solace Agent Mesh Framework provides the following built-in history providers:
+Solace Agent Mesh provides the following built-in history providers:
 
 - **Memory History Provider**: Stores history in memory.
 - **Redis History Provider**: Stores history in a Redis database.
 
 ### Custom History Provider
 
-To create a custom history provider, you can define a class that extends the `BaseHistoryProvider` class provided by Solace Agent Mesh framework:
+To create a custom history provider, you can define a class that extends the `BaseHistoryProvider` class provided by Solace Agent Mesh:
 
 ```python
 from solace_agent_mesh.services.history_service.history_providers.base_history_provider import BaseHistoryProvider

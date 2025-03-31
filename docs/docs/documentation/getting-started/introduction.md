@@ -31,7 +31,7 @@ Building production-ready AI applications presents unique challenges. While it's
 - **Addition of gateways to increase the supported use cases**: Each new gateway opens up new use cases for the system. A new gateway can provide a new interface to the system, with a different system purpose and response rules.
 - **Event-driven design**: Built on proven event-driven architecture principles, providing complete decoupling of components. This makes the system highly flexible and resilient, while enabling real-time monitoring of every interaction.
 
-- **Enterprise-ready**: Engineered from the ground up for production deployment, this solution leverages Solace's expertise in building mission-critical distributed systems.
+- **Enterprise-ready**: Engineered from the ground up for production deployment, this solution leverages expertise from Solace in building mission-critical distributed systems.
 
 ## Real-World Applications
 

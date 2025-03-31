@@ -45,7 +45,7 @@ flowchart TD
 
 ## Key Functions
 
-The Orchestrator provides the following key functions:
+The orchestrator provides the following key functions:
 
 1. **Request Analysis and Action Planning**:
 

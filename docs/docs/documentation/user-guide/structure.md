@@ -40,4 +40,4 @@ class MyAgent(BaseAgentComponent):
 
 The Python components from your custom agents and gateways are located under your source directory, which is copied to the build directory at build time.
 
-You are not able to directly change the core components, but many components such as the [File service](../user-guide/advanced/services/file-service.md), [History service](../user-guide/advanced/services/history-service.md) have base classes that can be extended to meet your requirements.
+You are not able to directly change the core components, but many components such as the [File service](../user-guide/advanced/services/file-service.md) and [History service](../user-guide/advanced/services/history-service.md) have base classes that can be extended to meet your requirements.

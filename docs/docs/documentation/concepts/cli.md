@@ -143,7 +143,7 @@ Use the `-e` or `--use-env` option to load environment variables from the config
 :::tip[none to run]
 The `run` command includes built-in dependency handling. If the build directory is missing, it automatically executes the `build` command. Similarly, if the configuration file is not found, it automatically executes the `init` command.
 
-For a quick start, you can simply use the `run` command without manually executing `build` or `init`. To use default values during the `build` and `init` phases, add the `-q` or `--quick-build` flag.
+To quickly get started, you can simply use the `run` command without manually executing `build` or `init`. To use default values during the `build` and `init` phases, add the `-q` or `--quick-build` option.
 :::
 
 While running the `run` command, you can also skip specific files by providing the `-s` or `--skip` option.

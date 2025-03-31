@@ -93,7 +93,7 @@ The Embedding service config file can be found in your build directory under `co
 To use multiple models or different configurations, duplicate the flow, and apply changes as needed.
 
 :::info
-Check [Overwrite](../overwrites.md) page to learn how to overwrite the Embedding service.
+To learn about how to overwrite the Embedding service, see [Overwrite](../overwrites.md).
 :::
 
 Sample embedding flow - duplicate the flow as many times as needed:

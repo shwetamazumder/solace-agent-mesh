@@ -95,14 +95,14 @@ The `jira_summary_emitter` output handler takes the json file with the summary, 
 
 ### Response Format
 
-Finally, set up the response prompt so that the final output precisely meets our expectations. For this example, we want only formatted json. Update the response_format_prompt_config with the following:
+Finally, set up the response prompt so that the final output meets our expectations. For this example, we want only formatted JSON. Update the `response_format_prompt_config` with the following:
 
 ```yaml
 - response_format_prompt_config: &response_format_prompt >
-    The response should be a valid, well-formed JSON object with no markdown formatting or additional wrappers
+    The response should be a valid, well-formed JSON object with no markdown formatting or additional wrappers.
 ```
 
-## Configuring the Gateway
+### Gateway
 
 No customization is required for `./configs/gateways/jira/gateway.yaml`
 
@@ -122,7 +122,7 @@ Now that the system is running, let's test the Event Mesh Gateway.
 
 1. Open the **Try Me!** tab of the [Solace PubSub+ Broker Manager](https://docs.solace.com/Admin/Broker-Manager/PubSub-Manager-Overview.htm).
 
-2. Connect both the _Publisher_ and _Subscriber_ panels by clicking their respective `Connect` buttons.
+2. Connect both the **Publisher** and **Subscriber** panels by clicking their respective **Connect** buttons.
 
 3. In the Subscriber panel:
 
@@ -141,7 +141,7 @@ Now that the system is running, let's test the Event Mesh Gateway.
 }
 ```
 
-Next, click `Publish`.
+Next, click **Publish**.
 
 After a few seconds, you will see a new message in the **Subscriber** messages with topic `jira/issue/update` and a body similar to below:
 
