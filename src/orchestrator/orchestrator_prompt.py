@@ -160,7 +160,9 @@ def create_examples(
 
 
 def SystemPrompt(info: Dict[str, Any], action_examples: List[str]) -> str:
-    response_format_prompt = info.get("response_format_prompt", "")
+    tp = info["tag_prefix"]
+    response_format_prompt = info.get("response_format_prompt", "") or ""
+    response_format_prompt = response_format_prompt.replace("{{tag_prefix}}", tp)
     response_guidelines_prompt = (
         f"<response_guidelines>\nConsider the following when generating a response to the originator:\n"
         f"{response_format_prompt}</response_guidelines>"
@@ -183,7 +185,6 @@ def SystemPrompt(info: Dict[str, Any], action_examples: List[str]) -> str:
         )
 
     # Merged
-    tp = info["tag_prefix"]
     examples = create_examples(fixed_examples, action_examples, tp)
 
     handling_files = get_file_handling_prompt(tp)
