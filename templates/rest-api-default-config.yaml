@@ -24,6 +24,6 @@
     local_dev : ${WEBUI_LOCAL_DEV}
 
 - response_format_prompt: &response_format_prompt >
-    Return all responses in markdown format and if the response contains a file or image, use the <{tag_prefix}file> tags with the assigned tag prefix.
+    Return all responses in markdown format. When returning files or images, use the <{{tag_prefix}}file> tags.
     Do not return files as links or with generic <file> tags.
     

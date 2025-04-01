@@ -188,6 +188,9 @@ class OrchestratorStimulusProcessorComponent(LLMRequestComponent):
         user_info = user_properties.get("user_info", {"email": "unknown"})
 
         agent_state_yaml, examples = self.get_agents_yaml(user_properties)
+        # Prefix with 't' as XML tags cannot start with a number
+        tag_prefix = "t" + str(random.randint(100, 999)) + "_"
+        response_format_prompt = user_properties.get("response_format_prompt")
         full_input = {
             "input_yaml": yaml.dump(input_data),
             "input": input_data,
@@ -196,12 +199,10 @@ class OrchestratorStimulusProcessorComponent(LLMRequestComponent):
                 "originator_persona_prompt"
             ),
             "system_purpose": user_properties.get("system_purpose"),
-            "response_format_prompt": user_properties.get("response_format_prompt"),
+            "response_format_prompt": response_format_prompt.replace("{{tag_prefix}}", tag_prefix),
             "originator_info": user_info,  # Do we need this?
             "agent_state_yaml": agent_state_yaml,
-            "tag_prefix": "t"
-            + str(random.randint(100, 999))
-            + "_",  # Prefix with 't' as XML tags cannot start with a number
+            "tag_prefix": tag_prefix,
             "available_files": available_files,
         }
 
