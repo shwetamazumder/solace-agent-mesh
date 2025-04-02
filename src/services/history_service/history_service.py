@@ -146,10 +146,9 @@ class HistoryService(AutoExpiry, metaclass=AutoExpirySingletonMeta):
                 index -= 1
             else:
                 break
-
         if actions_called:
             actions_called_str = ""
-            for action_called in actions_called:
+            for action_called in reversed(actions_called):
                 actions_called_str += (
                     f"\n - Agent: {action_called.get('agent_name')}"
                     f"\n   Action: {action_called.get('action_name')}"
