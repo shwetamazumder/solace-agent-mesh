@@ -128,8 +128,56 @@ The `HistoryServer` class uses a history provider to store and manage history da
 
 Solace Agent Mesh provides the following built-in history providers:
 
-- **Memory History Provider**: Stores history in memory.
-- **Redis History Provider**: Stores history in a Redis database.
+- **Memory History Provider** (`memory`): Stores history in memory.  
+- **Redis History Provider** (`redis`): Stores history in a Redis database.  
+- **File History Provider** (`file`): Stores history in files on the local filesystem.  
+- **MongoDB History Provider** (`mongodb`): Stores history in a MongoDB database.
+- **Custom History Provider**: Allows for the implementation of user-defined history storage solutions.
+
+### Built-in History Providers
+
+#### **Provider: `memory`**  
+
+The memory history provider stores history in memory. This provider is useful for storing temporary data that does not need to be persisted across restarts.  
+
+Memory provider does not require any additional packages or configurations.
+
+#### **Provider: `file`**
+The file history provider stores history in files on the local filesystem. This provider is useful for easy access to history data and for storing large amounts of data. If using a container, the management of the volume is the responsibility of the user.
+
+The file provider requires the following configuration:  
+
+- `path` (*required* - *string*): The directory path where history files will be stored.
+
+File provider does not require any additional packages.
+
+#### **Provider: `redis`**
+The Redis history provider stores history in a Redis database. This provider is useful for storing history data that needs to be persisted across restarts and shared across multiple instances of the application.
+
+The Redis provider requires the following configuration:
+- redis_host (*required* - *string*): The hostname of the Redis server.
+- redis_port (*required* - *int*): The port number of the Redis server.
+- redis_db (*required* - *int*): The database number to use in the Redis server.
+
+The Redis provider requires the `redis` package. To install the package, run the following command:  
+
+```bash
+pip install redis
+```
+
+#### **Provider: `mongodb`**
+The MongoDB history provider stores history in a MongoDB database. This provider is useful for storing history data that needs to be persisted across restarts and shared across multiple instances of the application.
+
+The MongoDB provider requires the following configuration:
+- mongodb_uri (*required* - *string*): The connection URI for the MongoDB server.
+- mongodb_db (*optional* - *string* - *default*: `history_db`): The name of the database to use in the MongoDB server.
+- mongodb_collection (*optional* - *string* - *default*: `sessions`): The name of the collection to use in the MongoDB database.
+
+The MongoDB provider requires the `pymongo` package. To install the package, run the following command:  
+
+```bash
+pip install pymongo
+```
 
 ### Custom History Provider
 
@@ -157,3 +205,41 @@ Once completed, you can add the `module_path` key to the configuration object wi
   }
 }
 ```
+
+
+## Long-Term Memory
+
+Solace-Agent-Mesh history service also comes with a long-term memory feature. This feature allows the system to extract and store important information and style preferences from the user's interactions. Also, to keep a track of all topics discussed in the same session. This feature is useful for personalizing the user experience and providing a more engaging conversation.
+
+The long-term memory includes the following 3 features:
+
+- Facts: The system stores important facts and information that the user has shared during the conversation. This information can be used to provide more personalized responses to the user's queries. 
+- Instructions: The system can also store instructions provided by the user, which can be referenced in future interactions. These include user preferences, style preferences, and how the system should interact and reply to users.
+- Session Summary: The system summarizes the key points discussed during the session, which can help in maintaining context in future interactions. The session summary is forgotten if not accessed for a long time.
+
+Facts and instructions memory are stored and accessible across sessions and gateways. They are tied to the user's unique identifier (provided by the gateway).
+
+### Enabling Long-Term Memory
+
+To enable the long-term memory for a gateway, update the `history_policy` of the `gateway.yaml` file with the following configuration:
+
+```yaml
+- history_policy: &default_history_policy
+    # ... Some other Configs ...
+    enable_long_term_memory: true # Enables the long-term memory feature
+    long_term_memory_config: # Required if enable_long_term_memory is set to true
+      summary_time_to_live: 432000 # How long to keep the session summary before forgetting, default 5 Days in seconds
+      llm_config: # LLM configuration to be used for the AI features of the long-term memory
+        model: ${LLM_SERVICE_PLANNING_MODEL_NAME}
+        api_key: ${LLM_SERVICE_API_KEY}
+        base_url: ${LLM_SERVICE_ENDPOINT}
+      store_config: # Configuration for storing long-term memory
+        type: "file" # History Provider
+        module_path: . # Not required if using one of the existing History Providers
+        # Other configs required for the history provider
+        path: /tmp/history  # Required for file history provider
+```
+
+:::warning
+The long-term memory feature requires the gateway to provide unique user identifiers. The user identifier is used to store and retrieve long-term memory information. If the user identifier is not provided, the long-term memory can not be stored separately for each user.
+:::
