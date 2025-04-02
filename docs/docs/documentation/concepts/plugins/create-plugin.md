@@ -46,9 +46,8 @@ The `interfaces` and `configs` directories come with an empty file to prevent Gi
 Once the plugin is created, you can start adding your custom [agents](#add-an-agent), [gateways](#add-a-gateway), or [overwrites](#add-an-overwrite).
 
 :::info
-Adding a  agent or gateway follows the same process as adding components to a project for Solace Agent Mesh.
+Adding an agent or gateway follows the same process as adding components to a project for Solace Agent Mesh.
 :::
-
 
 ## Plugin Configurations
 
@@ -67,7 +66,7 @@ solace_agent_mesh_plugin:
 
 ### Add an Agent
 
-To create a  [agent](../agents.md), run the following SAM CLI command:
+To create an [agent](../agents.md), run the following SAM CLI command:
 
 ```bash
 solace-agent-mesh add agent <agent-name>
@@ -77,7 +76,7 @@ For more information about creating a custom agent, see [Custom Agents](../../us
 
 ### Add a Gateway
 
-To create a  [gateway](../gateways.md), run the following SAM CLI command:
+To create a [gateway](../gateways.md), run the following SAM CLI command:
 
 ```bash
 solace-agent-mesh add gateway <gateway-name> [--interface <interface-name>]
@@ -89,7 +88,7 @@ For more information about creating a custom gateway, see [Custom Gateways](../.
 
 Instead of creating a [gateway](../gateways.md), you can create a [gateway interface](../gateways.md#gateway-from-interfaces). A gateway interface would allow the plugin users to instantiate a gateway using the interface.
 
-To create a  gateway interface, run the following SAM CLI command:
+To create a gateway interface, run the following SAM CLI command:
 
 ```bash
 solace-agent-mesh add <interface-name> --new-interface
@@ -100,7 +99,7 @@ solace-agent-mesh add <interface-name> --new-interface
 - **DO NOT** include the `gateway` keyword in the interface name.
 - **DO NOT** include any `--interface` option in the command.
 
-For more information about creating custom gateway interface, see  [Custom Gateway Interfaces](../../user-guide/custom-gateways.md#creating-gateway-interfaces).
+For more information about creating custom gateway interface, see [Custom Gateway Interfaces](../../user-guide/custom-gateways.md#creating-gateway-interfaces).
 
 ### Add an Overwrite
 
@@ -115,7 +114,7 @@ For more information, see [Overwrites](../../user-guide/advanced/overwrites.md).
 
 ## Build the Plugin
 
-Building the plugin  creates a Python wheel package that can be installed using `pip` or other package managers.
+Building the plugin creates a Python wheel package that can be installed using `pip` or other package managers.
 
 To build the plugin, run the following SAM CLI command:
 
@@ -141,10 +140,11 @@ If the `pyproject.toml` of the plugin is not at the root of the repository, you 
 ```bash
 pip install git+https://github.com/<USERNAME>/<REPOSITORY>#subdirectory=<PLUGIN_NAME>
 ```
+
 :::
 
-You can also using the SAM CLI:
+You can also use the SAM CLI:
 
 ```bash
-solace-agent-mesh plugin add PLUGIN_NAME --pip -u [git+](git+https://github.com/<USERNAME>/<REPOSITORY>)
+solace-agent-mesh plugin add PLUGIN_NAME --pip -u git+https://github.com/<USERNAME>/<REPOSITORY>
 ```
