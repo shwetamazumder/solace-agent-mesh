@@ -5,7 +5,7 @@ from solace_ai_connector.common.log import log
 from .gateway_base import GatewayBase
 from ...services.file_service import FileService
 from ...common.utils import files_to_block_text
-
+from ...common.constants import HISTORY_ASSISTANT_ROLE
 
 info = {
     "class_name": "GatewayOutput",
@@ -198,32 +198,18 @@ class GatewayOutput(GatewayBase):
                 and data.get("last_chunk")
                 and "text" in data
             ):
+                actions_called = user_properties.get("actions_called", [])
+                if actions_called:
+                    self.history_instance.store_actions(session_id, actions_called)
+                
                 if content:
-                    actions_called = user_properties.get("actions_called", [])
-                    if actions_called:
-                        actions_called_str = ""
-                        for action_called in actions_called:
-                            actions_called_str += (
-                                f"\n - Agent: {action_called.get('agent_name')}"
-                                f"\n   Action: {action_called.get('action_name')}"
-                                f"\n   Action Parameters: {action_called.get('action_params')}"
-                            )
-                            
-                        actions_called_prompt = (
-                            "<message_metadata>\n"
-                            "[Following actions were called to generate this response:]"
-                            f"{actions_called_str}"
-                            "\n</message_metadata>\n\n"
-                        )
-                        content = f"{actions_called_prompt}{content}"
-
                     self.history_instance.store_history(
-                        session_id, "assistant", content, other_history_props
+                        session_id, HISTORY_ASSISTANT_ROLE, content, other_history_props
                     )
 
             for file in files:
                 self.history_instance.store_history(
-                    session_id, "assistant", f'\n[Returned file: {{name: {file.get("name")}, url: {file.get("url")}}}]\n', other_history_props
+                    session_id, HISTORY_ASSISTANT_ROLE, f'\n[Returned file: {{name: {file.get("name")}, url: {file.get("url")}}}]\n', other_history_props
                 )
                 self.history_instance.store_file(session_id, file)
 
