@@ -216,7 +216,7 @@ class GatewayInput(GatewayBase):
                 self.history_instance.store_history(session_id, HISTORY_USER_ROLE, prompt, other_history_props)
 
                 for file in attached_files:
-                    self.history_instance.store_file(session_id, file)
+                    self.history_instance.store_file(session_id, file )
 
                 # retrieve all files for the session
                 available_files = self.history_instance.get_files(session_id)
