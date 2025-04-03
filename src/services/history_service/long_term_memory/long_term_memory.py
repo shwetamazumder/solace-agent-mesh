@@ -230,17 +230,18 @@ class LongTermMemory():
         instructions = ""
         facts = ""
         episodes = ""
+        separator = '\n - '
         
         if memory.get("instructions"):
-            instructions =(
+            instructions = (
             f"\n### Following instructions and preferences have been extracted from your previous conversations with the user:\n"
-            f" - {'\n - '.join(memory['instructions'])}\n"
+            f" - {separator.join(memory['instructions'])}\n"
         )
             
         if memory.get("facts"):
             facts = (
                 f"\n### Following facts have been extracted from your previous conversations with the user:\n"
-                f" - {'\n - '.join(memory['facts'])}\n"
+                f" - {separator.join(memory['facts'])}\n"
             )
         
         if summary:
