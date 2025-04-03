@@ -43,14 +43,14 @@ The History service requires a configuration object when creating a new instance
 
 ```json
 {
-  "type": "memory",
-  "time_to_live": 3600,
-  "expiration_check_interval": 60,
-  "history_policy": {
-    "max_characters": 30000,
-    "max_turns": 10,
-    "enforce_alternate_message_roles": false
-  }
+   "type": "memory",
+   "time_to_live": 3600,
+   "expiration_check_interval": 60,
+   "history_policy": {
+      "max_characters": 30000,
+      "max_turns": 10,
+      "enforce_alternate_message_roles": true
+   }
 }
 ```
 

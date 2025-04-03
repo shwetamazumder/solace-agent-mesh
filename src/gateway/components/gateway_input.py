@@ -6,7 +6,7 @@ from uuid import uuid4
 from solace_ai_connector.common.message import Message
 from solace_ai_connector.common.log import log
 from ...services.file_service import FileService
-from ...common.constants import DEFAULT_IDENTITY_KEY_FIELD
+from ...common.constants import DEFAULT_IDENTITY_KEY_FIELD, HISTORY_USER_ROLE
 from .gateway_base import GatewayBase
 
 info = {
@@ -213,7 +213,7 @@ class GatewayInput(GatewayBase):
                     "identity": identity_value,
                 }
                 prompt = data.get("text", "")
-                self.history_instance.store_history(session_id, "user", prompt, other_history_props)
+                self.history_instance.store_history(session_id, HISTORY_USER_ROLE, prompt, other_history_props)
 
                 for file in attached_files:
                     self.history_instance.store_file(session_id, file )

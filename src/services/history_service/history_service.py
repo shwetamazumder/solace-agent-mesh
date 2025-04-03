@@ -1,12 +1,12 @@
 import time
 import importlib
 import threading
-from typing import Union
+from typing import Union, Tuple
 
 from solace_ai_connector.common.log import log
 
 from ...common.time import ONE_HOUR, FIVE_MINUTES, ONE_DAY
-from ...common.constants import HISTORY_MEMORY_ROLE
+from ...common.constants import HISTORY_MEMORY_ROLE, HISTORY_ACTION_ROLE, HISTORY_USER_ROLE, HISTORY_ASSISTANT_ROLE
 from ..common import AutoExpiry, AutoExpirySingletonMeta
 from .history_providers.memory_history_provider import MemoryHistoryProvider
 from .history_providers.redis_history_provider import RedisHistoryProvider
@@ -32,7 +32,7 @@ DEFAULT_SUMMARY_TIME_TO_LIVE = ONE_DAY * 5
 DEFAULT_HISTORY_POLICY = {
     "max_turns": DEFAULT_MAX_TURNS,
     "max_characters": DEFAULT_MAX_CHARACTERS,
-    "enforce_alternate_message_roles": False,
+    "enforce_alternate_message_roles": True,
 }
 
 
@@ -119,6 +119,58 @@ class HistoryService(AutoExpiry, metaclass=AutoExpirySingletonMeta):
                 self.clear_history(session_id)
                 log.debug("History for session %s has expired", session_id)
 
+    def _get_empty_history_entry(self):
+        """
+        Get an empty history entry.
+        """
+        return {
+            "history": [],
+            "files": [],
+            "summary": "",
+            "last_active_time": time.time(),
+            "num_characters": 0,
+            "num_turns": 0,
+        }
+
+
+    def _merge_assistant_with_actions(self, assistant_message:str, history:list) -> Tuple[str, list]:
+        """
+        Merge assistant message with the actions called to generate the response.
+        """
+        actions_called = []
+        # Looping reversely to get the most recent action
+        index = len(history)
+        for entry in reversed(history):
+            if entry["role"] == HISTORY_ACTION_ROLE:
+                actions_called.append(entry["content"])
+                index -= 1
+            else:
+                break
+        if actions_called:
+            actions_called_str = ""
+            for action_called in reversed(actions_called):
+                actions_called_str += (
+                    f"\n - Agent: {action_called.get('agent_name')}"
+                    f"\n   Action: {action_called.get('action_name')}"
+                    f"\n   Action Parameters: {action_called.get('action_params')}"
+                )
+                
+            actions_called_prompt = (
+                "<message_metadata>\n"
+                "[Following actions were called to generate this response:]"
+                f"{actions_called_str}"
+                "\n</message_metadata>\n\n"
+            )
+            assistant_message = f"{actions_called_prompt}{assistant_message}"
+
+        return assistant_message, history[:index]
+    
+    def _filter_actions(self, history:list) -> list:
+        """
+        Filter out action entries from the history.
+        """
+        return [entry for entry in history if entry["role"] != HISTORY_ACTION_ROLE]
+    
     def store_history(self, session_id: str, role: str, content: Union[str, dict], other_history_props: dict = {}):
         """
         Store a new entry in the history.
@@ -135,14 +187,12 @@ class HistoryService(AutoExpiry, metaclass=AutoExpirySingletonMeta):
         
         history = self.history_provider.get_session(session_id).copy()
         if not history:
-            history = {
-                "history": [],
-                "files": [],
-                "summary": "",
-                "last_active_time": time.time(),
-                "num_characters": 0,
-                "num_turns": 0,
-            }      
+            history = self._get_empty_history_entry()
+
+        if role == HISTORY_ASSISTANT_ROLE:
+            content, history["history"] = self._merge_assistant_with_actions(content, history["history"])
+        elif role == HISTORY_USER_ROLE:
+            history["history"] = self._filter_actions(history["history"])
 
         if (
             self.history_policy.get("enforce_alternate_message_roles")
@@ -152,7 +202,7 @@ class HistoryService(AutoExpiry, metaclass=AutoExpirySingletonMeta):
             and history["history"][-1]["role"] == role
         ):
             # Append to last entry
-            history["history"][-1]["content"] += content
+            history["history"][-1]["content"] += "\n\n" + content
         else:
             # Add the new entry
             history["history"].append(
@@ -167,7 +217,7 @@ class HistoryService(AutoExpiry, metaclass=AutoExpirySingletonMeta):
         history["last_active_time"] = time.time()
 
         # Extract memory from the last 2 messages if use long term memory is enabled
-        if self.use_long_term_memory and role == "user" and len(history["history"]) > 2:
+        if self.use_long_term_memory and role == HISTORY_USER_ROLE and len(history["history"]) > 2:
             recent_messages = history["history"][-3:-1].copy()
             def background_task():
                 memory = self.long_term_memory_service.extract_memory_from_chat(recent_messages)
@@ -247,6 +297,30 @@ class HistoryService(AutoExpiry, metaclass=AutoExpirySingletonMeta):
                     ]
                 
         return messages
+    
+    def store_actions(self, session_id:str, actions:list):
+        """
+        Store an action in the history.
+
+        :param session_id: The session identifier.
+        :param actions: The actions to be stored in the history.
+        """
+        if not actions:
+            return
+        
+        history = self.history_provider.get_session(session_id).copy()
+        if not history:
+            history = self._get_empty_history_entry()
+
+        for action in actions:
+            history["history"].append(
+                {"role": HISTORY_ACTION_ROLE, "content": action}
+            )
+
+        history["last_active_time"] = time.time()
+
+        return self.history_provider.store_session(session_id, history)
+    
 
     def store_file(self, session_id:str, file:dict):
         """
@@ -260,15 +334,7 @@ class HistoryService(AutoExpiry, metaclass=AutoExpirySingletonMeta):
         
         history = self.history_provider.get_session(session_id).copy()
         if not history:
-            history = {
-                "history": [],
-                "files": [],
-                "summary": "",
-                "last_active_time": time.time(),
-                "num_characters": 0,
-                "num_turns": 0,
-            }
-
+            history = self._get_empty_history_entry()
 
         # Check duplicate
         for f in history["files"]:
