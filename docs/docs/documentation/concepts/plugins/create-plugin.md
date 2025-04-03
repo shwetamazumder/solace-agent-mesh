@@ -99,7 +99,68 @@ solace-agent-mesh add <interface-name> --new-interface
 - **DO NOT** include the `gateway` keyword in the interface name.
 - **DO NOT** include any `--interface` option in the command.
 
-For more information about creating custom gateway interface, see [Custom Gateway Interfaces](../../user-guide/custom-gateways.md#creating-gateway-interfaces).
+#### Default Gateway Configs for an Interface
+
+When creating a new gateway interface, you can also update the default values for the gateway when the interface is instantiated. 
+You can also safely remove the following values if you do not want to provide default values for the interface.
+
+For each interface, a new entry is added to the `solace-agent-mesh-plugin.yaml` file under the `interface_gateway_configs` section:
+
+```yaml
+interface_gateway_configs:
+  # Your interface name, one entry per interface
+  YOUR_INTERFACE_NAME:
+    # Whether a human user is expected to interact with the system or it's an autonomous system
+    interaction_type: "interactive" # interactive, autonomous
+    # The system purpose which will be added to the system prompt
+    system_purpose: "The system is an AI Chatbot with agentic capabilities. It will use the agents available to provide information, reasoning and general assistance for the users in this system."
+    # The gateway history configuration
+    history: 
+      # Whether the history is enabled or not
+      enabled: true
+
+      # The type of the history, "memory", "file", "redis", "mongodb", "sql"
+      type: "file"
+      # The configuration for the history type
+      type_config:
+        # Path is only used for "file" type, check the documentation for other types
+        path: /tmp/sam-history
+
+      # How long the history is kept in seconds
+      time_to_live: 1000
+      # How often the history is checked for expiration in seconds
+      expiration_check_interval: 300
+      # Maximum number of turns to keep in the history
+      max_turns: 40
+      # Maximum number of characters to keep in the history
+      max_characters: 50000
+      # Whether to enforce the alternate message roles (user and assistant)
+      enforce_alternate_message_roles: true
+
+      # The long term memory configuration
+      long_term_memory:
+        # Whether the long term memory is enabled or not
+        enabled: true
+        
+        # The LLM configuration that is used with the long term memory
+        llm_config:
+          model: ${LLM_SERVICE_PLANNING_MODEL_NAME}
+          api_key: ${LLM_SERVICE_API_KEY}
+          base_url: ${LLM_SERVICE_ENDPOINT}
+
+        # The store configuration for the long term memory, same as the history type
+        store_config:
+          # The type of the store, "memory", "file", "redis", "mongodb", "sql"
+          type: "file"
+          # The configuration for the store type, path is only used for "file" type
+          path: /tmp/history
+```
+
+:::note
+These values only update the initial values of the gateway when the interface is instantiated. The user can still change these values in the project.
+:::
+
+**For more information about creating custom gateway interfaces, see [Custom Gateway Interfaces](../../user-guide/custom-gateways.md#creating-gateway-interfaces).**
 
 ### Add an Overwrite
 
