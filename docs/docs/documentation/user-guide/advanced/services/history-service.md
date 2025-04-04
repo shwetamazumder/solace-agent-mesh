@@ -191,7 +191,11 @@ The SQL provider requires the following configuration:
 - sql_database (*required* - *string*): The name of the database to use in the SQL server.
 - table_name (*optional* - *string* - *default*: `session_history`): The name of the table to use in the SQL database.
 
-The SQL provider packages are already included in the Solace Agent Mesh package. You do not need to install any additional packages.
+The SQL provider requires the `psycopg2` package for PostgreSQL or the `mysql-connector-python` package for MySQL. To install the packages, run the following commands:
+
+```bash
+pip install psycopg2 mysql-connector-python
+```
 
 
 ### Custom History Provider
