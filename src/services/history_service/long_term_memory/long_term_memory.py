@@ -323,20 +323,25 @@ class LongTermMemory():
                 "facts": new_memory.get("facts", []),
                 "instructions": new_memory.get("instructions", []),
             }
-        
-        prompt = (
-            """### Initial Memory:\n"""
-            f"\n```\n{json.dumps({
+        initial_memory_str = json.dumps({
                 "facts": initial_memory.get("facts", []),
                 "instructions": initial_memory.get("instructions", []),
-            }, indent=4)}\n```\n\n\n"
-            """### Special Notes:\n"""
-            f"\n```\n - {'\n - '.join(new_memory.get("update_notes", [])) or "None"}\n```\n\n\n"
-            """### New Memory:\n"""
-            f"\n```\n{json.dumps({
+        }, indent=4)    
+        new_memory_str = json.dumps({
                 "facts": new_memory.get("facts", []),
                 "instructions": new_memory.get("instructions", []),
-            }, indent=4)}\n```\n\n"
+        }, indent=4)
+
+        separator = '\n - '
+        special_notes = separator.join(new_memory.get("update_notes", [])) or "None"
+        
+        prompt = (
+            "### Initial Memory:\n"
+            f"\n```\n{initial_memory_str}\n```\n\n\n"
+            "### Special Notes:\n"
+            f"\n```\n - {special_notes}\n```\n\n\n"
+            "### New Memory:\n"
+            f"\n```\n{new_memory_str}\n```\n\n"
             "Return the complete updated memory in the JSON format with the keys 'reasoning', 'facts' and 'instructions' and no prefix or affix."
         )
 
