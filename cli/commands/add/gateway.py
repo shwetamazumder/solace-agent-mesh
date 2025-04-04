@@ -126,8 +126,6 @@ def _update_gateway_yaml(yaml_string, interface_gateway_config):
                 store_config = "\n        " + "\n        ".join(store_config_parts) + "\n"
             else:
                 store_config = " {} \n"
-            
-            # Create the long-term memory YAML
             long_term_yaml = (
                 'long_term_memory: true\n'
                 '    long_term_memory_config:\n'
@@ -136,11 +134,12 @@ def _update_gateway_yaml(yaml_string, interface_gateway_config):
                 '    '
             )
 
-            # Add the long-term memory configuration before the history_policy section
             if "long_term_memory:" not in yaml_string:
-                yaml_string = yaml_string.replace(
-                    "history_policy: # History provider configs",
-                    f"{long_term_yaml}history_policy: # History provider configs"
+                yaml_string = re.sub(
+                    r'(history_policy: # History provider configs.*?\n(\s+max_turns: \d+))',
+                    lambda m: f'{long_term_yaml}{m.group(1)}',
+                    yaml_string,
+                    flags=re.DOTALL
                 )
 
         # Inject type_config under history_policy
