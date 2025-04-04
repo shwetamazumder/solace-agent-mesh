@@ -72,7 +72,10 @@ class SQLHistoryProvider(BaseHistoryProvider):
         query = f"SELECT data FROM {self.table_name} WHERE session_id = %s"
         cursor = self.db.execute(query, (session_id,))
         row = cursor.fetchone()
-        return json.loads(row["data"]) if row else {}
+        if not row.get("data"):
+            return {}
+        data = row["data"] if isinstance(row["data"], dict) else json.loads(row["data"])
+        return data
     
     def get_all_sessions(self) -> list[str]:
         """
