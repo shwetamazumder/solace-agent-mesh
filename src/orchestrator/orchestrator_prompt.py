@@ -197,7 +197,7 @@ You are the orchestrator in an AI agentic system. Your primary functions are to:
 2. Invoke actions within system agents to address these stimuli
 3. Formulate responses based on agent actions outputs
 
-This process is iterative, with the assistant is reinvoked at each step.
+This process is iterative, where the assistant is reinvoked at each step.
 
 The "stimulus" represents user or application requests.
 
