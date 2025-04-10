@@ -91,7 +91,7 @@ The `-b` option will rebuild the Solace Agent Mesh config files.
 
 ## Interacting with the Database
 
-After Solace Agent Mesh is running, you can interact with the ABC Coffee database through the web interface at `http://127.0.0.1:5001`.
+After Solace Agent Mesh is running, you can interact with the ABC Coffee database through the web interface at `http://localhost:5001`.
 
 You can ask natural language questions about the ABC Coffee Co. database, such as:
 
