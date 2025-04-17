@@ -41,9 +41,9 @@ dependencies = [
     "solace-ai-connector~=1.0.3",
     "solace-ai-connector[websocket]~=1.0.3",
     "solace-ai-connector[llm]~=1.0.3",
-    "solace-ai-connector-web~=0.2.1",
-    "solace-ai-connector-rest~=0.0.2",
-    "solace-ai-connector-slack~=0.0.1",
+    "solace-ai-connector-web~=0.2.2",
+    "solace-ai-connector-rest~=0.0.3",
+    "solace-ai-connector-slack~=0.0.2",
   ]
 
 [project.urls]
