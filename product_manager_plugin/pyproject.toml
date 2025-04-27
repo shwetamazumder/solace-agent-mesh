@@ -1,0 +1,32 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[project]
+name = "product_manager_plugin"
+dynamic = ["version"]
+authors = [
+  { name="shweta mazumder", email="" },
+]
+description = "a plugin that reads solace confluence page and jira and solace.com to create blog posts or community or hub posts for product managers when a new feature is launched"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "python-pptx>=0.6.21"
+]
+
+[tool.hatch.build.targets.wheel.force-include]
+"src" = "product_manager_plugin/src"
+"interfaces" = "product_manager_plugin/interfaces"
+"configs" = "product_manager_plugin/configs"
+"solace-agent-mesh-plugin.yaml" = "product_manager_plugin/solace-agent-mesh-plugin.yaml"
+
+[tool.hatch.build.targets.wheel]
+packages = ["product_manager_plugin"]
+
+[tool.hatch.version]
+path = "src/__init__.py"
+
