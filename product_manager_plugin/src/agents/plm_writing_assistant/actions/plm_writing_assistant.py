@@ -1,6 +1,7 @@
-"""Simplified action to fetch Confluence pages and summarize them using LLM."""
+"""Simplified action to fetch Confluence pages or Jira issues and summarize them using LLM."""
 
 import os
+import re
 import requests
 import getpass
 from pathlib import Path
@@ -22,15 +23,22 @@ class PlmWritingAssistant(Action):
         super().__init__(
             {
                 "name": "plm_writing_assistant",
-                "description": "Fetches Confluence pages and summarizes them into blog posts or slide content.",
+                "description": "Fetches Confluence pages or Jira issues and summarizes them into blog posts or slide content.",
                 "prompt_directive": (
-                    "Provide a Confluence page URL to fetch its content and generate a summarized blog post or slide content."
+                    "Provide a Confluence page URL or Jira issue key/URL to fetch its content and generate a summarized blog post or slide content."
                 ),
                 "params": [
                     {
                         "name": "confluence_url",
-                        "desc": "URL of the Confluence page to summarize",
+                        "desc": "URL of the Confluence page to summarize (provide either this or jira_issue)",
                         "type": "string",
+                        "required": False,
+                    },
+                    {
+                        "name": "jira_issue",
+                        "desc": "Jira issue key (e.g., 'PROJECT-123') or URL to summarize (provide either this or confluence_url)",
+                        "type": "string",
+                        "required": False,
                     },
                     {
                         "name": "output_type",
@@ -41,6 +49,12 @@ class PlmWritingAssistant(Action):
                     {
                         "name": "confluence_base_url",
                         "desc": "Base URL for Confluence instance (optional, uses environment variable if not provided)",
+                        "type": "string",
+                        "required": False,
+                    },
+                    {
+                        "name": "jira_base_url",
+                        "desc": "Base URL for Jira instance (optional, uses environment variable if not provided)",
                         "type": "string",
                         "required": False,
                     },
@@ -63,15 +77,26 @@ class PlmWritingAssistant(Action):
         )
 
     def invoke(self, params, meta={}) -> ActionResponse:
-        # Get the Confluence URL and output type from parameters
+        # Get input parameters
         confluence_url = params.get("confluence_url")
+        jira_issue = params.get("jira_issue")
         output_type = params.get("output_type", "blog_post")
         
-        if not confluence_url:
-            return ActionResponse(message="Error: No Confluence URL provided")
+        # Check if either Confluence URL or Jira issue is provided
+        if not confluence_url and not jira_issue:
+            return ActionResponse(message="Error: Please provide either a Confluence URL or Jira issue key/URL")
         
-        # Get Confluence API credentials (from params or environment or prompt)
+        # Determine which source we're using
+        using_confluence = confluence_url is not None
+        using_jira = jira_issue is not None
+        
+        if using_confluence and using_jira:
+            log.info("Both Confluence URL and Jira issue provided, using Confluence URL")
+            using_jira = False
+        
+        # Get Atlassian credentials (from params or environment or prompt)
         confluence_base_url = params.get("confluence_base_url") or os.getenv("CONFLUENCE_BASE_URL")
+        jira_base_url = params.get("jira_base_url") or os.getenv("JIRA_BASE_URL")
         atlassian_email = params.get("atlassian_email") or os.getenv("ATLASSIAN_EMAIL")
         atlassian_api_token = params.get("atlassian_api_token") or os.getenv("ATLASSIAN_API_TOKEN")
         
@@ -82,7 +107,7 @@ class PlmWritingAssistant(Action):
             self.ensure_env_file()
         
         # Prompt for missing credentials and save them
-        if not confluence_base_url:
+        if using_confluence and not confluence_base_url:
             print("\n" + "="*80)
             print("Confluence Base URL Configuration")
             print("="*80)
@@ -95,6 +120,22 @@ class PlmWritingAssistant(Action):
                 set_key(dotenv_file, "CONFLUENCE_BASE_URL", confluence_base_url)
                 os.environ["CONFLUENCE_BASE_URL"] = confluence_base_url
                 print("✓ Confluence base URL saved to environment variables.")
+            else:
+                print("⚠️ No base URL provided.")
+        
+        if using_jira and not jira_base_url:
+            print("\n" + "="*80)
+            print("Jira Base URL Configuration")
+            print("="*80)
+            print("No Jira base URL found in environment variables or parameters.")
+            print("This is the base URL of your Atlassian Jira instance.")
+            print("Example: https://your-company.atlassian.net")
+            print("-"*80)
+            jira_base_url = input("Please enter your Jira base URL: ")
+            if jira_base_url:
+                set_key(dotenv_file, "JIRA_BASE_URL", jira_base_url)
+                os.environ["JIRA_BASE_URL"] = jira_base_url
+                print("✓ Jira base URL saved to environment variables.")
             else:
                 print("⚠️ No base URL provided.")
         
@@ -134,8 +175,10 @@ class PlmWritingAssistant(Action):
         
         # Check if all required credentials are provided after prompting
         missing_credentials = []
-        if not confluence_base_url:
+        if using_confluence and not confluence_base_url:
             missing_credentials.append("Confluence base URL")
+        if using_jira and not jira_base_url:
+            missing_credentials.append("Jira base URL")
         if not atlassian_email:
             missing_credentials.append("Atlassian email")
         if not atlassian_api_token:
@@ -143,29 +186,57 @@ class PlmWritingAssistant(Action):
             
         if missing_credentials:
             return ActionResponse(
-                message=f"Error: Missing required Confluence credentials: {', '.join(missing_credentials)}.\n\n"
+                message=f"Error: Missing required credentials: {', '.join(missing_credentials)}.\n\n"
                         f"Please provide them as parameters or when prompted."
             )
+        
+        # Verify credentials and fetch content based on the source
+        content = None
+        source_name = None
+        
+        if using_confluence:
+            # Verify Confluence credentials
+            log.info("Verifying Confluence credentials...")
+            print("\nVerifying Confluence credentials... ", end="")
+            if not self.verify_credentials(confluence_base_url, atlassian_email, atlassian_api_token):
+                print("❌ Failed!")
+                return ActionResponse(
+                    message="Error: Invalid Confluence credentials. Please check your base URL, email, and API token."
+                )
+            print("✓ Success!")
             
-        # Verify credentials before proceeding
-        log.info("Verifying Confluence credentials...")
-        print("\nVerifying Confluence credentials... ", end="")
-        if not self.verify_credentials(confluence_base_url, atlassian_email, atlassian_api_token):
-            print("❌ Failed!")
-            return ActionResponse(
-                message="Error: Invalid Confluence credentials. Please check your base URL, email, and API token."
-            )
-        print("✓ Success!")
-        
-        # Log credentials (not the token)
-        log.info("Using Confluence credentials:")
-        log.info("CONFLUENCE_BASE_URL: %s", confluence_base_url)
-        log.info("ATLASSIAN_EMAIL: %s", atlassian_email)
-        log.info("ATLASSIAN_API_TOKEN: %s", "Present" if atlassian_api_token else "Missing")
-        
-        # Fetch the Confluence page content
-        log.info("Fetching Confluence page: %s", confluence_url)
-        content = self.fetch_confluence_page(confluence_url, confluence_base_url, atlassian_email, atlassian_api_token)
+            # Log credentials (not the token)
+            log.info("Using Confluence credentials:")
+            log.info("CONFLUENCE_BASE_URL: %s", confluence_base_url)
+            log.info("ATLASSIAN_EMAIL: %s", atlassian_email)
+            log.info("ATLASSIAN_API_TOKEN: %s", "Present" if atlassian_api_token else "Missing")
+            
+            # Fetch the Confluence page content
+            log.info("Fetching Confluence page: %s", confluence_url)
+            content = self.fetch_confluence_page(confluence_url, confluence_base_url, atlassian_email, atlassian_api_token)
+            source_name = "Confluence page"
+            
+        elif using_jira:
+            # Verify Jira credentials
+            log.info("Verifying Jira credentials...")
+            print("\nVerifying Jira credentials... ", end="")
+            if not self.verify_credentials(jira_base_url, atlassian_email, atlassian_api_token, is_jira=True):
+                print("❌ Failed!")
+                return ActionResponse(
+                    message="Error: Invalid Jira credentials. Please check your base URL, email, and API token."
+                )
+            print("✓ Success!")
+            
+            # Log credentials (not the token)
+            log.info("Using Jira credentials:")
+            log.info("JIRA_BASE_URL: %s", jira_base_url)
+            log.info("ATLASSIAN_EMAIL: %s", atlassian_email)
+            log.info("ATLASSIAN_API_TOKEN: %s", "Present" if atlassian_api_token else "Missing")
+            
+            # Fetch the Jira issue content
+            log.info("Fetching Jira issue: %s", jira_issue)
+            content = self.fetch_jira_issue(jira_issue, jira_base_url, atlassian_email, atlassian_api_token)
+            source_name = "Jira issue"
         
         # If fetching failed, return the error message
         if content.startswith("⚠️"):
@@ -173,26 +244,33 @@ class PlmWritingAssistant(Action):
         
         # Generate content based on the requested output type
         if output_type == "slide_content":
-            result = self.generate_slide_content(content)
+            result = self.generate_slide_content(content, source_name)
             # Include content type and URL in the message instead of using data parameter
             return ActionResponse(
                 message=result
             )
         else:
             # Default to blog post
-            result = self.summarize_content(content)
+            result = self.summarize_content(content, source_name)
             # Include content type and URL in the message instead of using data parameter
             return ActionResponse(
                 message=result
             )
 
     
-    def verify_credentials(self, base_url, email, token):
-        """Verify Confluence API credentials by making a test request"""
+    def verify_credentials(self, base_url, email, token, is_jira=False):
+        """Verify Atlassian API credentials by making a test request"""
         auth = (email, token)
         try:
-            test_url = f"{base_url}/rest/api/space"
-            log.info("Verifying credentials with request to: %s", test_url)
+            if is_jira:
+                # For Jira, we'll test by getting a list of projects
+                test_url = f"{base_url}/rest/api/2/project"
+                log.info("Verifying Jira credentials with request to: %s", test_url)
+            else:
+                # For Confluence, we'll test by getting a list of spaces
+                test_url = f"{base_url}/rest/api/space"
+                log.info("Verifying Confluence credentials with request to: %s", test_url)
+                
             resp = requests.get(test_url, auth=auth)
             
             if resp.ok:
@@ -242,7 +320,74 @@ class PlmWritingAssistant(Action):
             log.error(error_message)
             return error_message
 
-    def summarize_content(self, content):
+    def fetch_jira_issue(self, issue_key_or_url, base_url, email, token):
+        """Fetch content from a Jira issue"""
+        auth = (email, token)
+        
+        try:
+            # Extract issue key from URL if a URL was provided
+            # URL format: .../browse/PROJECT-123
+            issue_key = issue_key_or_url
+            if '/' in issue_key_or_url:
+                parts = issue_key_or_url.strip('/').split('/')
+                for i, part in enumerate(parts):
+                    if part == "browse" and i + 1 < len(parts):
+                        issue_key = parts[i + 1]
+                        break
+                else:
+                    # Try to find the issue key using regex (format: PROJECT-123)
+                    match = re.search(r'[A-Z]+-\d+', issue_key_or_url)
+                    if match:
+                        issue_key = match.group(0)
+                    else:
+                        return f"⚠️ Could not extract issue key from URL: {issue_key_or_url}"
+            
+            log.info("Using Jira issue key: %s", issue_key)
+            api_url = f"{base_url}/rest/api/2/issue/{issue_key}"
+            
+            log.info("Making API request to: %s", api_url)
+            resp = requests.get(api_url, auth=auth)
+            
+            if resp.ok:
+                data = resp.json()
+                issue_key = data["key"]
+                summary = data["fields"]["summary"]
+                description = data["fields"]["description"] or ""
+                status = data["fields"]["status"]["name"]
+                issue_type = data["fields"]["issuetype"]["name"]
+                priority = data["fields"].get("priority", {}).get("name", "N/A")
+                
+                # Format the content
+                content = f"# {issue_key}: {summary}\n\n"
+                content += f"**Type:** {issue_type}\n"
+                content += f"**Status:** {status}\n"
+                content += f"**Priority:** {priority}\n\n"
+                content += f"## Description\n\n{description}\n\n"
+                
+                # Add comments if available
+                comments_url = f"{base_url}/rest/api/2/issue/{issue_key}/comment"
+                comments_resp = requests.get(comments_url, auth=auth)
+                if comments_resp.ok:
+                    comments_data = comments_resp.json()
+                    if comments_data["comments"]:
+                        content += "## Comments\n\n"
+                        for comment in comments_data["comments"]:
+                            author = comment["author"]["displayName"]
+                            body = comment["body"]
+                            content += f"**{author}:**\n{body}\n\n"
+                
+                log.info("Successfully fetched Jira issue: %s", issue_key)
+                return content
+            else:
+                error_message = f"⚠️ Failed to fetch Jira issue: Status {resp.status_code}"
+                log.error("%s\nResponse: %s", error_message, resp.text[:500])
+                return error_message
+        except Exception as e:
+            error_message = f"⚠️ Error fetching Jira issue: {str(e)}"
+            log.error(error_message)
+            return error_message
+    
+    def summarize_content(self, content, source_name):
         """Summarize content using the LLM service"""
         if self.agent and hasattr(self.agent, "do_llm_service_request"):
             messages = [
@@ -252,7 +397,7 @@ class PlmWritingAssistant(Action):
                 },
                 {
                     "role": "user",
-                    "content": f"Summarize the following Confluence page content into a well-structured blog post:\n\n{content}"
+                    "content": f"Summarize the following {source_name} content into a well-structured blog post:\n\n{content}"
                 }
             ]
             
@@ -284,10 +429,10 @@ class PlmWritingAssistant(Action):
             # Create empty .env file with header comment
             if not os.path.exists(dotenv_file):
                 with open(dotenv_file, "w") as f:
-                    f.write("# Confluence API credentials\n")
+                    f.write("# Atlassian API credentials (Confluence and Jira)\n")
                 log.info("Created new .env file at %s", dotenv_file)
             
-    def generate_slide_content(self, content):
+    def generate_slide_content(self, content, source_name):
         """Generate presentation slide content using the LLM service"""
         if self.agent and hasattr(self.agent, "do_llm_service_request"):
             messages = [
@@ -317,7 +462,7 @@ class PlmWritingAssistant(Action):
                 },
                 {
                     "role": "user",
-                    "content": f"Convert the following Confluence page content into presentation slide content:\n\n{content}"
+                    "content": f"Convert the following {source_name} content into presentation slide content:\n\n{content}"
                 }
             ]
             
