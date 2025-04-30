@@ -1,4 +1,4 @@
-"""The agent component for the plm slide deck builder"""
+"""The agent component for the PLM slide deck builder that creates slides from Confluence pages"""
 
 import os
 import copy
@@ -19,8 +19,15 @@ info = copy.deepcopy(agent_info)
 info["agent_name"] = "plm_slide_deck_builder"
 info["class_name"] = "PlmSlideDeckBuilderAgentComponent"
 info["description"] = (
-    "This agent handles creation of presentation slide decks from Confluence pages. It should be used "
-    "when a user explicitly requests to create or generate a presentation from Confluence content."
+    "Creates PowerPoint slides from Confluence pages. "
+    "Provide a Confluence URL to generate a complete slide deck."
+)
+info["detailed_description"] = (
+    "The PLM Slide Deck Builder helps product managers create professional "
+    "PowerPoint presentations directly from Confluence pages. It uses AI to "
+    "analyze the page content and design an appropriate slide structure, "
+    "then builds a fully formatted PPTX file ready for use. Simply provide "
+    "a Confluence page URL to get started."
 )
 
 class PlmSlideDeckBuilderAgentComponent(BaseAgentComponent):
